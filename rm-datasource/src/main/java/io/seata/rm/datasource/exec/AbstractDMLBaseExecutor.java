@@ -15,16 +15,6 @@
  */
 package io.seata.rm.datasource.exec;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.util.CollectionUtils;
 import io.seata.rm.datasource.AbstractConnectionProxy;
@@ -36,6 +26,16 @@ import io.seata.sqlparser.SQLRecognizer;
 import io.seata.sqlparser.util.JdbcConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * The type Abstract dml base executor.
@@ -77,7 +77,9 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
 
     @Override
     public T doExecute(Object... args) throws Throwable {
+        //获取数据库连接代理对象(包装了我们原生的连接)
         AbstractConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
+        //根据原生的数据库连接的自动提交模式来执行，我们原生的提交模式是没有关闭自动提交的，所以会执行我们的executeAutoCommitTrue
         if (connectionProxy.getAutoCommit()) {
             return executeAutoCommitTrue(args);
         } else {
@@ -96,9 +98,14 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
         if (!JdbcConstants.MYSQL.equalsIgnoreCase(getDbType()) && isMultiPk()) {
             throw new NotSupportYetException("multi pk only support mysql!");
         }
+
+        //执行目标sql的前置快照
         TableRecords beforeImage = beforeImage();
+        //执行目标方法
         T result = statementCallback.execute(statementProxy.getTargetStatement(), args);
+        //执行后置快照
         TableRecords afterImage = afterImage(beforeImage);
+        //把前后快照构建一个undoLog对象
         prepareUndoLog(beforeImage, afterImage);
         return result;
     }
@@ -133,8 +140,10 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
      * @throws Throwable the throwable
      */
     protected T executeAutoCommitTrue(Object[] args) throws Throwable {
+        //获取数据库连接
         ConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
         try {
+            //把原生数据库连接的自动提交关闭，进行手动提交
             connectionProxy.changeAutoCommit();
             return new LockRetryPolicy(connectionProxy).execute(() -> {
                 T result = executeAutoCommitFalse(args);
@@ -155,7 +164,7 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
     }
 
     /**
-     * Before image table records.
+     * 前置镜像查询语句
      *
      * @return the table records
      * @throws SQLException the sql exception
@@ -163,7 +172,7 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
     protected abstract TableRecords beforeImage() throws SQLException;
 
     /**
-     * After image table records.
+     * 后置镜像查询语句
      *
      * @param beforeImage the before image
      * @return the table records

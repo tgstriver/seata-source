@@ -22,6 +22,7 @@ import io.seata.core.model.BranchType;
 import io.seata.rm.datasource.StatementProxy;
 import io.seata.rm.datasource.sql.SQLVisitorFactory;
 import io.seata.sqlparser.SQLRecognizer;
+
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -66,23 +67,25 @@ public class ExecuteTemplate {
                                                      StatementProxy<S> statementProxy,
                                                      StatementCallback<T, S> statementCallback,
                                                      Object... args) throws SQLException {
+        // 若不处于全局分布式事务下，或者是执行的方法上没有被@GlobalLock修饰，那么执行的Sql是不会被纳入到seata框架的管理范围
         if (!RootContext.requireGlobalLock() && BranchType.AT != RootContext.getBranchType()) {
             // Just work as original statement
             return statementCallback.execute(statementProxy.getTargetStatement(), args);
         }
 
         String dbType = statementProxy.getConnectionProxy().getDbType();
+        // 生成sql语句的识别器，用于识别原始sql所涉及到的执行的类型，比如是数据库类型，CRUD语句类型，操作的表
         if (CollectionUtils.isEmpty(sqlRecognizers)) {
-            sqlRecognizers = SQLVisitorFactory.get(
-                    statementProxy.getTargetSQL(),
-                    dbType);
+            sqlRecognizers = SQLVisitorFactory.get(statementProxy.getTargetSQL(), dbType);
         }
+
         Executor<T> executor;
         if (CollectionUtils.isEmpty(sqlRecognizers)) {
             executor = new PlainExecutor<>(statementProxy, statementCallback);
         } else {
             if (sqlRecognizers.size() == 1) {
                 SQLRecognizer sqlRecognizer = sqlRecognizers.get(0);
+                //根据我们原始sql执行的脚本类生成不同sql的执行器
                 switch (sqlRecognizer.getSQLType()) {
                     case INSERT:
                         executor = EnhancedServiceLoader.load(InsertExecutor.class, dbType,
@@ -108,6 +111,7 @@ public class ExecuteTemplate {
         }
         T rs;
         try {
+            //根据具体的执行器执行我们的sql语句
             rs = executor.execute(args);
         } catch (Throwable ex) {
             if (!(ex instanceof SQLException)) {
@@ -118,5 +122,4 @@ public class ExecuteTemplate {
         }
         return rs;
     }
-
 }

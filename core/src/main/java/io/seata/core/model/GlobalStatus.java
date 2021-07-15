@@ -30,9 +30,9 @@ public enum GlobalStatus {
     UnKnown(0),
 
     /**
-     * The Begin.
+     * 全局事务开始状态
      */
-    // PHASE 1: can accept new branch registering.
+    // 第一阶段：可以接受新的分支事务注册
     Begin(1),
 
     /**
@@ -48,21 +48,18 @@ public enum GlobalStatus {
     CommitRetrying(3),
 
     /**
-     * Rollbacking global status.
+     * 正在回滚全局事务
      */
-    // Rollbacking
     Rollbacking(4),
 
     /**
-     * The Rollback retrying.
+     * 正在进行事务回滚操作的重试
      */
-    // Retrying rollback after a recoverable failure.
     RollbackRetrying(5),
 
     /**
-     * The Timeout rollbacking.
+     * 因为全局事务超时导致回滚
      */
-    // Rollbacking since timeout
     TimeoutRollbacking(6),
 
     /**
@@ -72,8 +69,7 @@ public enum GlobalStatus {
     TimeoutRollbackRetrying(7),
 
     /**
-     * All branches can be async committed. The committing is NOT done yet, but it can be seen as committed for TM/RM
-     * client.
+     * 表示所有分支事务都可以异步提交。提交尚未完成，但可以将其视为TC已提交给TM/RM客户端
      */
     AsyncCommitting(8),
 

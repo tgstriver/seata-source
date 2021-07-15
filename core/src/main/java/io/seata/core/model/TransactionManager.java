@@ -19,7 +19,7 @@ import io.seata.core.exception.TransactionException;
 
 /**
  * Transaction Manager.
- *
+ * <p>
  * Define a global transaction and control it.
  *
  * @author sharajava
@@ -35,10 +35,10 @@ public interface TransactionManager {
      * @param timeout                 Timeout of the global transaction.
      * @return XID of the global transaction
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
-     * out.
+     *                              out.
      */
     String begin(String applicationId, String transactionServiceGroup, String name, int timeout)
-        throws TransactionException;
+            throws TransactionException;
 
     /**
      * Global commit.
@@ -46,7 +46,7 @@ public interface TransactionManager {
      * @param xid XID of the global transaction.
      * @return Status of the global transaction after committing.
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
-     * out.
+     *                              out.
      */
     GlobalStatus commit(String xid) throws TransactionException;
 
@@ -56,7 +56,7 @@ public interface TransactionManager {
      * @param xid XID of the global transaction
      * @return Status of the global transaction after rollbacking.
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
-     * out.
+     *                              out.
      */
     GlobalStatus rollback(String xid) throws TransactionException;
 
@@ -66,18 +66,18 @@ public interface TransactionManager {
      * @param xid XID of the global transaction.
      * @return Current status of the global transaction.
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
-     * out.
+     *                              out.
      */
     GlobalStatus getStatus(String xid) throws TransactionException;
 
     /**
      * Global report.
      *
-     * @param xid XID of the global transaction.
+     * @param xid          XID of the global transaction.
      * @param globalStatus Status of the global transaction.
      * @return Status of the global transaction.
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
-     * out.
+     *                              out.
      */
     GlobalStatus globalReport(String xid, GlobalStatus globalStatus) throws TransactionException;
 }

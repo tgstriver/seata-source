@@ -18,7 +18,7 @@ package io.seata.core.event;
 import io.seata.core.model.GlobalStatus;
 
 /**
- * Event data for global transaction.
+ * 全局事务事件，用来作metric收集
  *
  * @author zhengyangyong
  */
@@ -48,7 +48,7 @@ public class GlobalTransactionEvent implements Event {
      * business applicationId
      */
     private String applicationId;
-    
+
     /**
      * Transaction Service Group
      */
@@ -84,7 +84,7 @@ public class GlobalTransactionEvent implements Event {
     public String getApplicationId() {
         return applicationId;
     }
-    
+
     public String getGroup() {
         return group;
     }
@@ -102,7 +102,7 @@ public class GlobalTransactionEvent implements Event {
     }
 
     public GlobalTransactionEvent(long id, String role, String name, String applicationId,
-            String group, Long beginTime, Long endTime, GlobalStatus status) {
+                                  String group, Long beginTime, Long endTime, GlobalStatus status) {
         this.id = id;
         this.role = role;
         this.name = name;

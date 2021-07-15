@@ -25,6 +25,7 @@ import java.util.Properties;
 
 /**
  * The hikari datasource provider
+ *
  * @author diguage
  * @author will
  */

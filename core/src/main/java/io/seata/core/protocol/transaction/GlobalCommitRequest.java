@@ -24,6 +24,7 @@ import io.seata.core.rpc.RpcContext;
  * @author slievrly
  */
 public class GlobalCommitRequest extends AbstractGlobalEndRequest {
+
     @Override
     public short getTypeCode() {
         return MessageType.TYPE_GLOBAL_COMMIT;

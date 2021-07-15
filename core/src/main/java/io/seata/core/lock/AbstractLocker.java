@@ -15,13 +15,13 @@
  */
 package io.seata.core.lock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.seata.common.util.CollectionUtils;
 import io.seata.core.store.LockDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The type Abstract locker.
@@ -51,11 +51,13 @@ public abstract class AbstractLocker implements Locker {
         if (CollectionUtils.isEmpty(locks)) {
             return lockDOs;
         }
+
         for (RowLock rowLock : locks) {
             LockDO lockDO = new LockDO();
             lockDO.setBranchId(rowLock.getBranchId());
             lockDO.setPk(rowLock.getPk());
             lockDO.setResourceId(rowLock.getResourceId());
+            // 封装行锁，jdbc:mysql://47.108.128.50:31822/yyx-saas^^^product_info^^^id
             lockDO.setRowKey(getRowKey(rowLock.getResourceId(), rowLock.getTableName(), rowLock.getPk()));
             lockDO.setXid(rowLock.getXid());
             lockDO.setTransactionId(rowLock.getTransactionId());
@@ -66,7 +68,8 @@ public abstract class AbstractLocker implements Locker {
     }
 
     /**
-     * Get row key string.
+     * 获取行锁
+     * jdbc:mysql://47.108.128.50:31822/yyx-saas^^^product_info^^^id
      *
      * @param resourceId the resource id
      * @param tableName  the table name
@@ -75,7 +78,7 @@ public abstract class AbstractLocker implements Locker {
      */
     protected String getRowKey(String resourceId, String tableName, String pk) {
         return new StringBuilder().append(resourceId).append(LOCK_SPLIT).append(tableName).append(LOCK_SPLIT).append(pk)
-            .toString();
+                .toString();
     }
 
     @Override

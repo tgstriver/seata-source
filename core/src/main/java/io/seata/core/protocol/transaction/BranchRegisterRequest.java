@@ -24,12 +24,15 @@ import io.seata.core.rpc.RpcContext;
  *
  * @author sharajava
  */
-public class BranchRegisterRequest extends AbstractTransactionRequestToTC  {
+public class BranchRegisterRequest extends AbstractTransactionRequestToTC {
 
     private String xid;
 
     private BranchType branchType = BranchType.AT;
 
+    /**
+     * jdbc:mysql://47.108.128.50:31822/yyx-saas
+     */
     private String resourceId;
 
     private String lockKey;
@@ -73,7 +76,7 @@ public class BranchRegisterRequest extends AbstractTransactionRequestToTC  {
     }
 
     /**
-     * Gets lock key.
+     * 获取本地锁
      *
      * @return the lock key
      */

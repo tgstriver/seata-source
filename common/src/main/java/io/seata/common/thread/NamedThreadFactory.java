@@ -15,13 +15,13 @@
  */
 package io.seata.common.thread;
 
+import io.netty.util.concurrent.FastThreadLocalThread;
+import io.seata.common.util.CollectionUtils;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.netty.util.concurrent.FastThreadLocalThread;
-import io.seata.common.util.CollectionUtils;
 
 /**
  * The type Named thread factory.
@@ -45,8 +45,7 @@ public class NamedThreadFactory implements ThreadFactory {
      * @param makeDaemons the make daemons
      */
     public NamedThreadFactory(String prefix, int totalSize, boolean makeDaemons) {
-        int prefixCounter = CollectionUtils.computeIfAbsent(PREFIX_COUNTER, prefix, key -> new AtomicInteger(0))
-                .incrementAndGet();
+        int prefixCounter = CollectionUtils.computeIfAbsent(PREFIX_COUNTER, prefix, key -> new AtomicInteger(0)).incrementAndGet();
         SecurityManager securityManager = System.getSecurityManager();
         group = (securityManager != null) ? securityManager.getThreadGroup() : Thread.currentThread().getThreadGroup();
         this.prefix = prefix + "_" + prefixCounter;

@@ -30,11 +30,12 @@ public class LogStoreSqlsFactory {
 
     /**
      * get the log store sqls
+     *
      * @param dbType the db type
      * @return the LogStoreSqls
      */
     public static LogStoreSqls getLogStoreSqls(String dbType) {
         return CollectionUtils.computeIfAbsent(LOG_STORE_SQLS_MAP, dbType,
-            key -> EnhancedServiceLoader.load(LogStoreSqls.class, dbType.toLowerCase()));
+                key -> EnhancedServiceLoader.load(LogStoreSqls.class, dbType.toLowerCase()));
     }
 }

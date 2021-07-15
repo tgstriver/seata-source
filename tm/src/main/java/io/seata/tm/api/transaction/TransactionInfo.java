@@ -62,7 +62,6 @@ public final class TransactionInfo implements Serializable {
     }
 
     public boolean rollbackOn(Throwable ex) {
-
         RollbackRule winner = null;
         int deepest = Integer.MAX_VALUE;
 

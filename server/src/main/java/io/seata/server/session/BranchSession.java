@@ -15,22 +15,22 @@
  */
 package io.seata.server.session;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import io.seata.server.storage.file.lock.FileLocker;
 import io.seata.common.util.CompressUtil;
 import io.seata.core.exception.TransactionException;
 import io.seata.core.model.BranchStatus;
 import io.seata.core.model.BranchType;
 import io.seata.server.lock.LockerManagerFactory;
+import io.seata.server.storage.file.lock.FileLocker;
 import io.seata.server.store.SessionStorable;
 import io.seata.server.store.StoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The type Branch session.
@@ -44,7 +44,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
     private static final int MAX_BRANCH_SESSION_SIZE = StoreConfig.getMaxBranchSessionSize();
 
     private static ThreadLocal<ByteBuffer> byteBufferThreadLocal = ThreadLocal.withInitial(() -> ByteBuffer.allocate(
-        MAX_BRANCH_SESSION_SIZE));
+            MAX_BRANCH_SESSION_SIZE));
 
     private String xid;
 
@@ -67,7 +67,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
     private String applicationData;
 
     private ConcurrentMap<FileLocker.BucketLockMap, Set<String>> lockHolder
-        = new ConcurrentHashMap<>();
+            = new ConcurrentHashMap<>();
 
     /**
      * Gets application data.
@@ -275,6 +275,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
     @Override
     public boolean lock() throws TransactionException {
         if (this.getBranchType().equals(BranchType.AT)) {
+            // 调用加锁管理器，默认是AbstractLockManager来加锁
             return LockerManagerFactory.getLockManager().acquireLock(this);
         }
         return true;
@@ -308,7 +309,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
         if (size > MAX_BRANCH_SESSION_SIZE) {
             if (lockKeyBytes == null) {
                 throw new RuntimeException("branch session size exceeded, size : " + size + " maxBranchSessionSize : "
-                    + MAX_BRANCH_SESSION_SIZE);
+                        + MAX_BRANCH_SESSION_SIZE);
             }
             // try compress lockkey
             try {
@@ -322,8 +323,8 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
 
             if (size > MAX_BRANCH_SESSION_SIZE) {
                 throw new RuntimeException(
-                    "compress branch session size exceeded, compressSize : " + size + " maxBranchSessionSize : "
-                        + MAX_BRANCH_SESSION_SIZE);
+                        "compress branch session size exceeded, compressSize : " + size + " maxBranchSessionSize : "
+                                + MAX_BRANCH_SESSION_SIZE);
             }
         }
 
@@ -349,10 +350,10 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
         }
 
         if (clientIdBytes != null) {
-            byteBuffer.putShort((short)clientIdBytes.length);
+            byteBuffer.putShort((short) clientIdBytes.length);
             byteBuffer.put(clientIdBytes);
         } else {
-            byteBuffer.putShort((short)0);
+            byteBuffer.putShort((short) 0);
         }
 
         if (applicationDataBytes != null) {
@@ -371,7 +372,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
 
         byteBuffer.put(branchTypeByte);
 
-        byteBuffer.put((byte)status.getCode());
+        byteBuffer.put((byte) status.getCode());
         byteBuffer.flip();
         byte[] result = new byte[byteBuffer.limit()];
         byteBuffer.get(result);
@@ -381,19 +382,19 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
     private int calBranchSessionSize(byte[] resourceIdBytes, byte[] lockKeyBytes, byte[] clientIdBytes,
                                      byte[] applicationDataBytes, byte[] xidBytes) {
         final int size = 8 // trascationId
-            + 8 // branchId
-            + 4 // resourceIdBytes.length
-            + 4 // lockKeyBytes.length
-            + 2 // clientIdBytes.length
-            + 4 // applicationDataBytes.length
-            + 4 // xidBytes.size
-            + 1 // statusCode
-            + (resourceIdBytes == null ? 0 : resourceIdBytes.length)
-            + (lockKeyBytes == null ? 0 : lockKeyBytes.length)
-            + (clientIdBytes == null ? 0 : clientIdBytes.length)
-            + (applicationDataBytes == null ? 0 : applicationDataBytes.length)
-            + (xidBytes == null ? 0 : xidBytes.length)
-            + 1; //branchType
+                + 8 // branchId
+                + 4 // resourceIdBytes.length
+                + 4 // lockKeyBytes.length
+                + 2 // clientIdBytes.length
+                + 4 // applicationDataBytes.length
+                + 4 // xidBytes.size
+                + 1 // statusCode
+                + (resourceIdBytes == null ? 0 : resourceIdBytes.length)
+                + (lockKeyBytes == null ? 0 : lockKeyBytes.length)
+                + (clientIdBytes == null ? 0 : clientIdBytes.length)
+                + (applicationDataBytes == null ? 0 : applicationDataBytes.length)
+                + (xidBytes == null ? 0 : xidBytes.length)
+                + 1; //branchType
         return size;
     }
 

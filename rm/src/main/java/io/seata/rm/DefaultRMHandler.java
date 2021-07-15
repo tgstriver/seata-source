@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * the default RM event handler implement, deal with the phase two events
+ * 默认的RM事件处理程序实现，处理第二阶段的事件
  *
  * @author zhangsen
  */

@@ -15,8 +15,6 @@
  */
 package io.seata.tm.api;
 
-import java.util.List;
-
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.core.context.GlobalLockConfigHolder;
 import io.seata.core.exception.TransactionException;
@@ -29,6 +27,8 @@ import io.seata.tm.api.transaction.TransactionHookManager;
 import io.seata.tm.api.transaction.TransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Template of executing business logic with a global transaction.
@@ -48,12 +48,12 @@ public class TransactionalTemplate {
      * @throws TransactionalExecutor.ExecutionException the execution exception
      */
     public Object execute(TransactionalExecutor business) throws Throwable {
-        // 1. Get transactionInfo
+        // 1. 调用transactionalTemplate上一步传递进来的TransactionalExecutor，并且调用该匿名对象的getTransactionInfo获取全局事务注解信息
         TransactionInfo txInfo = business.getTransactionInfo();
         if (txInfo == null) {
             throw new ShouldNeverHappenException("transactionInfo does not exist");
         }
-        // 1.1 Get current transaction, if not null, the tx role is 'GlobalTransactionRole.Participant'.
+        // 1.1 获取一个全局事务, if not null, the tx role is 'GlobalTransactionRole.Participant'.
         GlobalTransaction tx = GlobalTransactionContext.getCurrent();
 
         // 1.2 Handle the transaction propagation.
@@ -62,7 +62,7 @@ public class TransactionalTemplate {
         try {
             switch (propagation) {
                 case NOT_SUPPORTED:
-                    // If transaction is existing, suspend it.
+                    // 如果事务存在，则暂停它
                     if (existingTransaction(tx)) {
                         suspendedResourcesHolder = tx.suspend();
                     }
@@ -91,8 +91,8 @@ public class TransactionalTemplate {
                     // If transaction is existing, throw exception.
                     if (existingTransaction(tx)) {
                         throw new TransactionException(
-                            String.format("Existing transaction found for transaction marked with propagation 'never', xid = %s"
-                                    , tx.getXid()));
+                                String.format("Existing transaction found for transaction marked with propagation 'never', xid = %s"
+                                        , tx.getXid()));
                     } else {
                         // Execute without transaction and return.
                         return business.execute();
@@ -116,22 +116,25 @@ public class TransactionalTemplate {
             // set current tx config to holder
             GlobalLockConfig previousConfig = replaceGlobalLockConfig(txInfo);
 
+            // 下面逻辑的实现类似于spring aop的环绕通知
             try {
                 // 2. If the tx role is 'GlobalTransactionRole.Launcher', send the request of beginTransaction to TC,
                 //    else do nothing. Of course, the hooks will still be triggered.
+                //开启全局事务
                 beginTransaction(txInfo, tx);
 
                 Object rs;
                 try {
-                    // Do Your Business
+                    // 执行业务方法，一阶段：业务数据和undoLog数据在同一个本地事务中提交，释放本地锁和连接资源
                     rs = business.execute();
                 } catch (Throwable ex) {
                     // 3. The needed business exception to rollback.
+                    //若执行业务方法抛出异常，触发全局事务回滚
                     completeTransactionAfterThrowing(txInfo, tx, ex);
                     throw ex;
                 }
 
-                // 4. everything is fine, commit.
+                // 4. 触发全局事务提交
                 commitTransaction(tx);
 
                 return rs;
@@ -196,7 +199,7 @@ public class TransactionalTemplate {
         } catch (TransactionException txe) {
             // 4.1 Failed to commit
             throw new TransactionalExecutor.ExecutionException(tx, txe,
-                TransactionalExecutor.Code.CommitFailure);
+                    TransactionalExecutor.Code.CommitFailure);
         }
     }
 
@@ -206,17 +209,25 @@ public class TransactionalTemplate {
         triggerAfterRollback();
         // 3.1 Successfully rolled back
         throw new TransactionalExecutor.ExecutionException(tx, GlobalStatus.RollbackRetrying.equals(tx.getLocalStatus())
-            ? TransactionalExecutor.Code.RollbackRetrying : TransactionalExecutor.Code.RollbackDone, originalException);
+                ? TransactionalExecutor.Code.RollbackRetrying : TransactionalExecutor.Code.RollbackDone, originalException);
     }
 
+    /**
+     * 开启全局事务，说白了就是把刚刚创建的全局事务信息注册到seata-server上，保存到了global_table表上
+     *
+     * @param txInfo
+     * @param tx
+     * @throws TransactionalExecutor.ExecutionException
+     */
     private void beginTransaction(TransactionInfo txInfo, GlobalTransaction tx) throws TransactionalExecutor.ExecutionException {
         try {
             triggerBeforeBegin();
+            // 真正提交的方法，GlobalTransaction的默认类DefaultGlobalTransaction处理
             tx.begin(txInfo.getTimeOut(), txInfo.getName());
             triggerAfterBegin();
         } catch (TransactionException txe) {
             throw new TransactionalExecutor.ExecutionException(tx, txe,
-                TransactionalExecutor.Code.BeginFailure);
+                    TransactionalExecutor.Code.BeginFailure);
 
         }
     }

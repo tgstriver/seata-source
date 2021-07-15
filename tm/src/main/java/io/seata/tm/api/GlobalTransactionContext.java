@@ -30,7 +30,7 @@ public class GlobalTransactionContext {
     }
 
     /**
-     * Try to create a new GlobalTransaction.
+     * 创建一个全局事务，并且是发起者
      *
      * @return the new global transaction
      */
@@ -39,25 +39,31 @@ public class GlobalTransactionContext {
     }
 
     /**
-     * Get GlobalTransaction instance bind on current thread.
+     * 获取绑定到当前线程上的GlobalTransaction实例
      *
      * @return null if no transaction context there.
      */
     public static GlobalTransaction getCurrent() {
+        // 去当前上下文中获取全局事务ID
         String xid = RootContext.getXID();
+        // 没有获取到就直接返回
         if (xid == null) {
             return null;
         }
+
+        // 获取到了，那么当前就是事务的参与者而不是发起者
         return new DefaultGlobalTransaction(xid, GlobalStatus.Begin, GlobalTransactionRole.Participant);
     }
 
     /**
-     * Get GlobalTransaction instance bind on current thread. Create a new on if no existing there.
+     * 获取绑定到当前线程上的GlobalTransaction实例，如果不存在则创建一个新的
      *
      * @return new context if no existing there.
      */
     public static GlobalTransaction getCurrentOrCreate() {
+        //获取当前的一个全局事务
         GlobalTransaction tx = getCurrent();
+        //没有获取到全局事务,就新创建一个全局事务
         if (tx == null) {
             return createNew();
         }

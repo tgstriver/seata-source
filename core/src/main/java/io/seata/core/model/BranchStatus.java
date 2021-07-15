@@ -26,26 +26,22 @@ import io.seata.common.exception.ShouldNeverHappenException;
 public enum BranchStatus {
 
     /**
-     * The Unknown.
-     * description:Unknown branch status.
+     * 未知的分支状态
      */
     Unknown(0),
 
     /**
-     * The Registered.
-     * description:Registered to TC.
+     * 分支事务注册到了TC中
      */
     Registered(1),
 
     /**
-     * The Phase one done.
-     * description:Branch logic is successfully done at phase one.
+     * 分支逻辑在第一阶段成功完成
      */
     PhaseOne_Done(2),
 
     /**
-     * The Phase one failed.
-     * description:Branch logic is failed at phase one.
+     * 分支逻辑在第一阶段失败
      */
     PhaseOne_Failed(3),
 
@@ -56,8 +52,7 @@ public enum BranchStatus {
     PhaseOne_Timeout(4),
 
     /**
-     * The Phase two committed.
-     * description:Commit logic is successfully done at phase two.
+     * 提交逻辑在第二阶段成功完成
      */
     PhaseTwo_Committed(5),
 
@@ -74,20 +69,17 @@ public enum BranchStatus {
     PhaseTwo_CommitFailed_Unretryable(7),
 
     /**
-     * The Phase two rollbacked.
-     * description:Rollback logic is successfully done at phase two.
+     * 回滚逻辑在第二阶段成功完成
      */
     PhaseTwo_Rollbacked(8),
 
     /**
-     * The Phase two rollback failed retryable.
-     * description:Rollback logic is failed but retryable.
+     * 第二阶段回滚失败可重试
      */
     PhaseTwo_RollbackFailed_Retryable(9),
 
     /**
-     * The Phase two rollback failed unretryable.
-     * description:Rollback logic is failed but NOT retryable.
+     * 第二阶段回滚失败不可重试
      */
     PhaseTwo_RollbackFailed_Unretryable(10);
 
@@ -114,7 +106,7 @@ public enum BranchStatus {
      * @return the branch status
      */
     public static BranchStatus get(byte code) {
-        return get((int)code);
+        return get((int) code);
     }
 
     /**

@@ -96,8 +96,7 @@ public abstract class AbstractExceptionHandler {
         }
 
         @Override
-        public void onTransactionException(T request, S response,
-            TransactionException tex) {
+        public void onTransactionException(T request, S response, TransactionException tex) {
             response.setTransactionExceptionCode(tex.getCode());
             response.setResultCode(ResultCode.Failed);
             response.setMsg("TransactionException[" + tex.getMessage() + "]");

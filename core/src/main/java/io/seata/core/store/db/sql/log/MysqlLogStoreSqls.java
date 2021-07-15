@@ -20,6 +20,7 @@ import io.seata.core.constants.ServerTableColumnsName;
 
 /**
  * Database log store mysql sql
+ *
  * @author will
  */
 @LoadLevel(name = "mysql")
@@ -87,7 +88,7 @@ public class MysqlLogStoreSqls extends AbstractLogStoreSqls {
     @Override
     public String getQueryGlobalTransactionSQLByStatus(String globalTable, String paramsPlaceHolder) {
         return QUERY_GLOBAL_TRANSACTION_BY_STATUS_MYSQL.replace(GLOBAL_TABLE_PLACEHOLD, globalTable)
-            .replace(PRAMETER_PLACEHOLD, paramsPlaceHolder);
+                .replace(PRAMETER_PLACEHOLD, paramsPlaceHolder);
     }
 
     @Override

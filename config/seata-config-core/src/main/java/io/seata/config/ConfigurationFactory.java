@@ -15,14 +15,14 @@
  */
 package io.seata.config;
 
-import java.util.Objects;
-
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.loader.EnhancedServiceLoader;
 import io.seata.common.loader.EnhancedServiceNotFoundException;
 import io.seata.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * The type Configuration factory.
@@ -84,6 +84,8 @@ public final class ConfigurationFactory {
 
     /**
      * Gets instance.
+     * <p>
+     * 通过双重检查锁实现单例模式
      *
      * @return the instance
      */

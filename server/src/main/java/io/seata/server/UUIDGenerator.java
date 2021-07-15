@@ -28,6 +28,7 @@ public class UUIDGenerator {
 
     /**
      * generate UUID using snowflake algorithm
+     *
      * @return UUID
      */
     public static long generateUUID() {
@@ -43,6 +44,7 @@ public class UUIDGenerator {
 
     /**
      * init IdWorker
+     *
      * @param serverNode the server node id, consider as machine id in snowflake
      */
     public static void init(Long serverNode) {

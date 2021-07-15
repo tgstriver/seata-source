@@ -51,10 +51,10 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
     private GlobalTransactionRole role;
 
     private static final int COMMIT_RETRY_COUNT = ConfigurationFactory.getInstance().getInt(
-        ConfigurationKeys.CLIENT_TM_COMMIT_RETRY_COUNT, DEFAULT_TM_COMMIT_RETRY_COUNT);
+            ConfigurationKeys.CLIENT_TM_COMMIT_RETRY_COUNT, DEFAULT_TM_COMMIT_RETRY_COUNT);
 
     private static final int ROLLBACK_RETRY_COUNT = ConfigurationFactory.getInstance().getInt(
-        ConfigurationKeys.CLIENT_TM_ROLLBACK_RETRY_COUNT, DEFAULT_TM_ROLLBACK_RETRY_COUNT);
+            ConfigurationKeys.CLIENT_TM_ROLLBACK_RETRY_COUNT, DEFAULT_TM_ROLLBACK_RETRY_COUNT);
 
     /**
      * Instantiates a new Default global transaction.
@@ -87,23 +87,34 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
         begin(timeout, DEFAULT_GLOBAL_TX_NAME);
     }
 
+    /**
+     * 真正的开启全局事务的逻辑
+     *
+     * @param timeout Given timeout in MILLISECONDS.
+     * @param name    Given name.
+     * @throws TransactionException
+     */
     @Override
     public void begin(int timeout, String name) throws TransactionException {
-        if (role != GlobalTransactionRole.Launcher) {
+        if (role != GlobalTransactionRole.Launcher) { // 表示当前角色是事务参与者，不执行全局事务开启逻辑
             assertXIDNotNull();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Ignore Begin(): just involved in global transaction [{}]", xid);
             }
             return;
         }
+
+        // 表示当前角色是事务发起者
         assertXIDNull();
         String currentXid = RootContext.getXID();
         if (currentXid != null) {
-            throw new IllegalStateException("Global transaction already exists," +
-                " can't begin a new global transaction, currentXid = " + currentXid);
+            throw new IllegalStateException("Global transaction already exists," + " can't begin a new global transaction, currentXid = " + currentXid);
         }
+
+        // 真正的开启一个事务，由DefaultTransactionManager发起全局事务开启
         xid = transactionManager.begin(null, null, name, timeout);
         status = GlobalStatus.Begin;
+        // 将xid绑定到当前全局事务发起者的线程中
         RootContext.bind(xid);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Begin new global transaction [{}]", xid);
@@ -119,6 +130,7 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
             }
             return;
         }
+
         assertXIDNotNull();
         int retry = COMMIT_RETRY_COUNT <= 0 ? DEFAULT_TM_COMMIT_RETRY_COUNT : COMMIT_RETRY_COUNT;
         try {
@@ -139,6 +151,7 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
                 suspend();
             }
         }
+
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[{}] commit status: {}", xid, status);
         }
@@ -153,6 +166,7 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
             }
             return;
         }
+
         assertXIDNotNull();
 
         int retry = ROLLBACK_RETRY_COUNT <= 0 ? DEFAULT_TM_ROLLBACK_RETRY_COUNT : ROLLBACK_RETRY_COUNT;
@@ -174,6 +188,7 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
                 suspend();
             }
         }
+
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[{}] rollback status: {}", xid, status);
         }
@@ -211,6 +226,7 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
         if (xid == null) {
             return GlobalStatus.UnKnown;
         }
+
         status = transactionManager.getStatus(xid);
         return status;
     }
@@ -248,12 +264,18 @@ public class DefaultGlobalTransaction implements GlobalTransaction {
         return role;
     }
 
+    /**
+     * 事务发起者
+     */
     private void assertXIDNotNull() {
         if (xid == null) {
             throw new IllegalStateException();
         }
     }
 
+    /**
+     * 若有xid了，那么就是事务的参与者，上游服务已经传递过来xid
+     */
     private void assertXIDNull() {
         if (xid != null) {
             throw new IllegalStateException();

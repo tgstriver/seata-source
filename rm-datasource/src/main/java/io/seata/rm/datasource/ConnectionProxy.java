@@ -15,11 +15,6 @@
  */
 package io.seata.rm.datasource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.concurrent.Callable;
-
 import io.seata.common.util.StringUtils;
 import io.seata.config.ConfigurationFactory;
 import io.seata.core.constants.ConfigurationKeys;
@@ -34,6 +29,11 @@ import io.seata.rm.datasource.undo.SQLUndoLog;
 import io.seata.rm.datasource.undo.UndoLogManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.concurrent.Callable;
 
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_LOCK_RETRY_POLICY_BRANCH_ROLLBACK_ON_CONFLICT;
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_REPORT_RETRY_COUNT;
@@ -247,19 +247,26 @@ public class ConnectionProxy extends AbstractConnectionProxy {
 
     private void processGlobalTransactionCommit() throws SQLException {
         try {
+            // 调用seata‐server的分支注册接口，注意：在这里注册分支事务时会带入全局锁(表名:修改的字段值)
             register();
         } catch (TransactionException e) {
+            // 若全局锁在服务端有冲突，这里会抛出LockConflictException异常
             recognizeLockKeyConflictException(e, context.buildLockKeys());
         }
+
         try {
+            //保存我们的前置和后置镜像数据到业务数据库中的undo_log表
             UndoLogManagerFactory.getUndoLogManager(this.getDbType()).flushUndoLogs(this);
+            //提交本地事务
             targetConnection.commit();
         } catch (Throwable ex) {
             LOGGER.error("process connectionProxy commit error: {}", ex.getMessage(), ex);
+            //分支事务在一阶段处理失败的时候会向seata-server进行报告
             report(false);
             throw new SQLException(ex);
         }
-        if (IS_REPORT_SUCCESS_ENABLE) {
+
+        if (IS_REPORT_SUCCESS_ENABLE) { // 如果启用了client.rm.reportSuccessEnable，那么分支事务在一阶段提交成功的时候会向seata-server进行报告
             report(true);
         }
         context.reset();
@@ -269,6 +276,7 @@ public class ConnectionProxy extends AbstractConnectionProxy {
         if (!context.hasUndoLog() || !context.hasLockKey()) {
             return;
         }
+
         Long branchId = DefaultResourceManager.get().branchRegister(BranchType.AT, getDataSourceProxy().getResourceId(),
             null, context.getXid(), null, context.buildLockKeys());
         context.setBranchId(branchId);
@@ -306,6 +314,7 @@ public class ConnectionProxy extends AbstractConnectionProxy {
         if (context.getBranchId() == null) {
             return;
         }
+
         int retry = REPORT_RETRY_COUNT;
         while (retry > 0) {
             try {
@@ -340,9 +349,12 @@ public class ConnectionProxy extends AbstractConnectionProxy {
             LockRetryController lockRetryController = new LockRetryController();
             while (true) {
                 try {
+                    //真正的执行我们的业务逻辑
                     return callable.call();
                 } catch (LockConflictException lockConflict) {
+                    //获取全局锁失败，进行回滚
                     onException(lockConflict);
+                    //当前线程sleep，重试30次，每次10ms，重试去获取全局锁
                     lockRetryController.sleep(lockConflict);
                 } catch (Exception e) {
                     onException(e);

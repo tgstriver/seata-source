@@ -46,7 +46,7 @@ public class NettyRemotingServer extends AbstractNettyRemotingServer {
 
     @Override
     public void init() {
-        // registry processor
+        // 注册处理器
         registerProcessor();
         if (initialized.compareAndSet(false, true)) {
             super.init();
@@ -56,7 +56,7 @@ public class NettyRemotingServer extends AbstractNettyRemotingServer {
     /**
      * Instantiates a new Rpc remoting server.
      *
-     * @param messageExecutor   the message executor
+     * @param messageExecutor the message executor
      */
     public NettyRemotingServer(ThreadPoolExecutor messageExecutor) {
         super(messageExecutor, new NettyServerConfig());
@@ -87,7 +87,7 @@ public class NettyRemotingServer extends AbstractNettyRemotingServer {
     private void registerProcessor() {
         // 1. registry on request message processor
         ServerOnRequestProcessor onRequestProcessor =
-            new ServerOnRequestProcessor(this, getHandler());
+                new ServerOnRequestProcessor(this, getHandler());
         super.registerProcessor(MessageType.TYPE_BRANCH_REGISTER, onRequestProcessor, messageExecutor);
         super.registerProcessor(MessageType.TYPE_BRANCH_STATUS_REPORT, onRequestProcessor, messageExecutor);
         super.registerProcessor(MessageType.TYPE_GLOBAL_BEGIN, onRequestProcessor, messageExecutor);
@@ -99,7 +99,7 @@ public class NettyRemotingServer extends AbstractNettyRemotingServer {
         super.registerProcessor(MessageType.TYPE_SEATA_MERGE, onRequestProcessor, messageExecutor);
         // 2. registry on response message processor
         ServerOnResponseProcessor onResponseProcessor =
-            new ServerOnResponseProcessor(getHandler(), getFutures());
+                new ServerOnResponseProcessor(getHandler(), getFutures());
         super.registerProcessor(MessageType.TYPE_BRANCH_COMMIT_RESULT, onResponseProcessor, messageExecutor);
         super.registerProcessor(MessageType.TYPE_BRANCH_ROLLBACK_RESULT, onResponseProcessor, messageExecutor);
         // 3. registry rm message processor

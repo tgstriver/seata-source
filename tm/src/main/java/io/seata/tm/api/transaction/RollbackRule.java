@@ -60,6 +60,7 @@ public class RollbackRule implements Serializable {
             // Found it!
             return depth;
         }
+
         // If we've gone as far as we can go and haven't found it...
         if (exceptionClass == Throwable.class) {
             return -1;

@@ -15,11 +15,6 @@
  */
 package io.seata.server.transaction.saga;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
 import io.netty.channel.Channel;
 import io.seata.common.util.CollectionUtils;
 import io.seata.core.exception.GlobalTransactionException;
@@ -31,13 +26,18 @@ import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchCommitResponse;
 import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import io.seata.core.protocol.transaction.BranchRollbackResponse;
-import io.seata.core.rpc.netty.ChannelManager;
 import io.seata.core.rpc.RemotingServer;
+import io.seata.core.rpc.netty.ChannelManager;
 import io.seata.server.coordinator.AbstractCore;
 import io.seata.server.session.BranchSession;
 import io.seata.server.session.GlobalSession;
 import io.seata.server.session.SessionHelper;
 import io.seata.server.session.SessionHolder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * The type saga core.
@@ -115,8 +115,7 @@ public class SagaCore extends AbstractCore {
                     SessionHelper.endRollbacked(globalSession);
                     return false;
                 case PhaseTwo_RollbackFailed_Retryable:
-                    LOGGER.error("By [{}], failed to rollback SAGA global [{}], will retry later.", branchStatus,
-                            globalSession.getXid());
+                    LOGGER.error("By [{}], failed to rollback SAGA global [{}], will retry later.", branchStatus, globalSession.getXid());
                     SessionHolder.getRetryCommittingSessionManager().removeGlobalSession(globalSession);
                     globalSession.queueToRetryRollback();
                     return false;
@@ -128,8 +127,7 @@ public class SagaCore extends AbstractCore {
                     return false;
                 case PhaseTwo_CommitFailed_Unretryable:
                     if (globalSession.canBeCommittedAsync()) {
-                        LOGGER.error("By [{}], failed to commit SAGA global [{}]", branchStatus,
-                                globalSession.getXid());
+                        LOGGER.error("By [{}], failed to commit SAGA global [{}]", branchStatus, globalSession.getXid());
                         break;
                     } else {
                         SessionHelper.endCommitFailed(globalSession);
@@ -147,7 +145,6 @@ public class SagaCore extends AbstractCore {
             }
         } catch (Exception ex) {
             LOGGER.error("Failed to commit global[" + globalSession.getXid() + "]", ex);
-
             if (!retrying) {
                 globalSession.queueToRetryRollback();
             }
@@ -165,7 +162,7 @@ public class SagaCore extends AbstractCore {
             switch (branchStatus) {
                 case PhaseTwo_Rollbacked:
                     removeAllBranches(globalSession);
-                    LOGGER.info("Successfully rollbacked SAGA global[{}]",globalSession.getXid());
+                    LOGGER.info("Successfully rollbacked SAGA global[{}]", globalSession.getXid());
                     break;
                 case PhaseTwo_RollbackFailed_Unretryable:
                     SessionHelper.endRollbackFailed(globalSession);

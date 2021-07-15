@@ -44,12 +44,25 @@ import java.util.concurrent.TimeoutException;
  */
 public class DefaultTransactionManager implements TransactionManager {
 
+    /**
+     * 开启全局事务
+     *
+     * @param applicationId           ID of the application who begins this transaction.
+     * @param transactionServiceGroup ID of the transaction service group.
+     * @param name                    Give a name to the global transaction.
+     * @param timeout                 Timeout of the global transaction.
+     * @return
+     * @throws TransactionException
+     */
     @Override
-    public String begin(String applicationId, String transactionServiceGroup, String name, int timeout)
-        throws TransactionException {
+    public String begin(String applicationId, String transactionServiceGroup, String name, int timeout) throws TransactionException {
+        // 封装全局事务的请求
         GlobalBeginRequest request = new GlobalBeginRequest();
+        // 事务的名称
         request.setTransactionName(name);
+        // 全局事务超时时间
         request.setTimeout(timeout);
+        // 同步调用seata‐server的begin接口，返回全局事务id
         GlobalBeginResponse response = (GlobalBeginResponse) syncCall(request);
         if (response.getResultCode() == ResultCode.Failed) {
             throw new TmTransactionException(TransactionExceptionCode.BeginFailed, response.getMsg());

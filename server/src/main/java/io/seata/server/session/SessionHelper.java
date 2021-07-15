@@ -15,8 +15,6 @@
  */
 package io.seata.server.session;
 
-import java.util.Collection;
-
 import io.seata.core.context.RootContext;
 import io.seata.core.exception.TransactionException;
 import io.seata.core.model.BranchType;
@@ -26,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.util.Collection;
+
 /**
  * The type Session helper.
  *
@@ -34,7 +34,8 @@ import org.slf4j.MDC;
 public class SessionHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionHelper.class);
 
-    private SessionHelper() {}
+    private SessionHelper() {
+    }
 
     public static BranchSession newBranchByGlobal(GlobalSession globalSession, BranchType branchType, String resourceId, String lockKeys, String clientId) {
         return newBranchByGlobal(globalSession, branchType, resourceId, null, lockKeys, clientId);
@@ -51,7 +52,7 @@ public class SessionHelper {
      * @return the branch session
      */
     public static BranchSession newBranchByGlobal(GlobalSession globalSession, BranchType branchType, String resourceId,
-            String applicationData, String lockKeys, String clientId) {
+                                                  String applicationData, String lockKeys, String clientId) {
         BranchSession branchSession = new BranchSession();
 
         branchSession.setXid(globalSession.getXid());

@@ -15,13 +15,6 @@
  */
 package io.seata.server.storage.db.store;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
-
 import io.seata.common.exception.StoreException;
 import io.seata.common.loader.EnhancedServiceLoader;
 import io.seata.common.util.CollectionUtils;
@@ -36,10 +29,17 @@ import io.seata.core.store.LogStore;
 import io.seata.core.store.db.DataSourceProvider;
 import io.seata.server.session.GlobalSession;
 import io.seata.server.session.SessionCondition;
+import io.seata.server.storage.SessionConverter;
 import io.seata.server.store.AbstractTransactionStoreManager;
 import io.seata.server.store.SessionStorable;
 import io.seata.server.store.TransactionStoreManager;
-import io.seata.server.storage.SessionConverter;
+
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The type Database transaction store manager.
@@ -47,7 +47,7 @@ import io.seata.server.storage.SessionConverter;
  * @author zhangsen
  */
 public class DataBaseTransactionStoreManager extends AbstractTransactionStoreManager
-    implements TransactionStoreManager {
+        implements TransactionStoreManager {
 
     private static volatile DataBaseTransactionStoreManager instance;
 
@@ -129,7 +129,7 @@ public class DataBaseTransactionStoreManager extends AbstractTransactionStoreMan
         }
         //branch transactions
         List<BranchTransactionDO> branchTransactionDOs = logStore.queryBranchTransactionDO(
-            globalTransactionDO.getXid());
+                globalTransactionDO.getXid());
         return getGlobalSession(globalTransactionDO, branchTransactionDOs);
     }
 
@@ -147,7 +147,7 @@ public class DataBaseTransactionStoreManager extends AbstractTransactionStoreMan
     /**
      * Read session global session.
      *
-     * @param xid the xid
+     * @param xid                the xid
      * @param withBranchSessions the withBranchSessions
      * @return the global session
      */
@@ -178,18 +178,20 @@ public class DataBaseTransactionStoreManager extends AbstractTransactionStoreMan
         for (int i = 0; i < statuses.length; i++) {
             states[i] = statuses[i].getCode();
         }
+
         //global transaction
         List<GlobalTransactionDO> globalTransactionDOs = logStore.queryGlobalTransactionDO(states, logQueryLimit);
         if (CollectionUtils.isEmpty(globalTransactionDOs)) {
             return null;
         }
+
         List<String> xids = globalTransactionDOs.stream().map(GlobalTransactionDO::getXid).collect(Collectors.toList());
         List<BranchTransactionDO> branchTransactionDOs = logStore.queryBranchTransactionDO(xids);
         Map<String, List<BranchTransactionDO>> branchTransactionDOsMap = branchTransactionDOs.stream()
-            .collect(Collectors.groupingBy(BranchTransactionDO::getXid, LinkedHashMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(BranchTransactionDO::getXid, LinkedHashMap::new, Collectors.toList()));
         return globalTransactionDOs.stream().map(globalTransactionDO ->
-            getGlobalSession(globalTransactionDO, branchTransactionDOsMap.get(globalTransactionDO.getXid())))
-            .collect(Collectors.toList());
+                getGlobalSession(globalTransactionDO, branchTransactionDOsMap.get(globalTransactionDO.getXid())))
+                .collect(Collectors.toList());
     }
 
     @Override

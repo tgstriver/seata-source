@@ -15,11 +15,6 @@
  */
 package io.seata.rm;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-
 import io.seata.core.model.BranchType;
 import io.seata.core.model.ResourceManager;
 import io.seata.core.protocol.transaction.UndoLogDeleteRequest;
@@ -28,6 +23,11 @@ import io.seata.rm.datasource.DataSourceProxy;
 import io.seata.rm.datasource.undo.UndoLogManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * The type Rm handler at.
@@ -42,12 +42,13 @@ public class RMHandlerAT extends AbstractRMHandler {
 
     @Override
     public void handle(UndoLogDeleteRequest request) {
-        DataSourceManager dataSourceManager = (DataSourceManager)getResourceManager();
+        DataSourceManager dataSourceManager = (DataSourceManager) getResourceManager();
         DataSourceProxy dataSourceProxy = dataSourceManager.get(request.getResourceId());
         if (dataSourceProxy == null) {
             LOGGER.warn("Failed to get dataSourceProxy for delete undolog on {}", request.getResourceId());
             return;
         }
+
         Date logCreatedSave = getLogCreated(request.getSaveDays());
         Connection conn = null;
         try {
@@ -55,8 +56,7 @@ public class RMHandlerAT extends AbstractRMHandler {
             int deleteRows = 0;
             do {
                 try {
-                    deleteRows = UndoLogManagerFactory.getUndoLogManager(dataSourceProxy.getDbType())
-                            .deleteUndoLogByLogCreated(logCreatedSave, LIMIT_ROWS, conn);
+                    deleteRows = UndoLogManagerFactory.getUndoLogManager(dataSourceProxy.getDbType()).deleteUndoLogByLogCreated(logCreatedSave, LIMIT_ROWS, conn);
                     if (deleteRows > 0 && !conn.getAutoCommit()) {
                         conn.commit();
                     }
@@ -84,6 +84,7 @@ public class RMHandlerAT extends AbstractRMHandler {
         if (saveDays <= 0) {
             saveDays = UndoLogDeleteRequest.DEFAULT_SAVE_DAYS;
         }
+
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, -saveDays);
         return calendar.getTime();

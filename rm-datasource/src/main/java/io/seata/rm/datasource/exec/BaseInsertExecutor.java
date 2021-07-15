@@ -15,16 +15,6 @@
  */
 package io.seata.rm.datasource.exec;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Objects;
-
 import com.google.common.collect.Lists;
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.exception.ShouldNeverHappenException;
@@ -44,8 +34,19 @@ import io.seata.sqlparser.struct.SqlSequenceExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * The Base Insert Executor.
+ *
  * @author jsbxyyx
  */
 public abstract class BaseInsertExecutor<T, S extends Statement> extends AbstractDMLBaseExecutor<T, S> implements InsertExecutor<T> {
@@ -74,6 +75,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
     @Override
     protected TableRecords afterImage(TableRecords beforeImage) throws SQLException {
         Map<String, List<Object>> pkValues = getPkValues();
+        // 传入主键集合，通过拼接select * from 表名 where 主键列 in (主键值)，并且执行该语句封装到TableRecord
         TableRecords afterImage = buildTableRecords(pkValues);
         if (afterImage == null) {
             throw new SQLException("Failed to build after-image for insert");
@@ -92,6 +94,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
     /**
      * judge sql specify column
+     *
      * @return true: contains column. false: not contains column.
      */
     protected boolean containsColumns() {
@@ -100,6 +103,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
     /**
      * get pk index
+     *
      * @return the key is pk column name and the value is index of the pk column
      */
     protected Map<String, Integer> getPkIndex() {
@@ -130,6 +134,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
     /**
      * parse primary key value from statement.
+     *
      * @return
      */
     protected Map<String, List<Object>> parsePkValuesFromStatement() {
@@ -219,6 +224,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
     /**
      * default get generated keys.
+     *
      * @return
      * @throws SQLException
      */
@@ -327,6 +333,7 @@ public abstract class BaseInsertExecutor<T, S extends Statement> extends Abstrac
 
     /**
      * check pk values for single pk
+     *
      * @param pkValues pkValues
      * @param ps       true: is prepared statement. false: normal statement.
      * @return true: support. false: not support.

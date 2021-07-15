@@ -46,6 +46,7 @@ public class SQLUndoLog implements java.io.Serializable {
         if (beforeImage != null) {
             beforeImage.setTableMeta(tableMeta);
         }
+
         if (afterImage != null) {
             afterImage.setTableMeta(tableMeta);
         }

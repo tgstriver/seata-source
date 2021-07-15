@@ -54,6 +54,4 @@ public class SeataAutoConfiguration {
         }
         return new GlobalTransactionScanner(seataProperties.getApplicationId(), seataProperties.getTxServiceGroup(), failureHandler);
     }
-
-
 }

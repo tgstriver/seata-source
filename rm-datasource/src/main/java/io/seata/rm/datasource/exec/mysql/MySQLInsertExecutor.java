@@ -79,19 +79,17 @@ public class MySQLInsertExecutor extends BaseInsertExecutor implements Defaultab
     }
 
     @Override
-    public Map<String,List<Object>> getPkValues() throws SQLException {
-        Map<String,List<Object>> pkValuesMap = null;
+    public Map<String, List<Object>> getPkValues() throws SQLException {
+        Map<String, List<Object>> pkValuesMap = null;
         List<String> pkColumnNameList = getTableMeta().getPrimaryKeyOnlyName();
         Boolean isContainsPk = containsPK();
         //when there is only one pk in the table
         if (getTableMeta().getPrimaryKeyOnlyName().size() == 1) {
             if (isContainsPk) {
                 pkValuesMap = getPkValuesByColumn();
-            }
-            else if (containsColumns()) {
+            } else if (containsColumns()) {
                 pkValuesMap = getPkValuesByAuto();
-            }
-            else {
+            } else {
                 pkValuesMap = getPkValuesByColumn();
             }
         } else {
@@ -99,7 +97,7 @@ public class MySQLInsertExecutor extends BaseInsertExecutor implements Defaultab
             //1,all pk columns are filled value.
             //2,the auto increment pk column value is null, and other pk value are not null.
             pkValuesMap = getPkValuesByColumn();
-            for (String columnName:pkColumnNameList) {
+            for (String columnName : pkColumnNameList) {
                 if (!pkValuesMap.containsKey(columnName)) {
                     ColumnMeta pkColumnMeta = getTableMeta().getColumnMeta(columnName);
                     if (Objects.nonNull(pkColumnMeta) && pkColumnMeta.isAutoincrement()) {
@@ -163,16 +161,16 @@ public class MySQLInsertExecutor extends BaseInsertExecutor implements Defaultab
         } catch (SQLException e) {
             LOGGER.warn("Fail to reset ResultSet cursor. can not get primary key value");
         }
-        pkValuesMap.put(autoColumnName,pkValues);
+        pkValuesMap.put(autoColumnName, pkValues);
         return pkValuesMap;
     }
 
     @Override
-    public Map<String,List<Object>> getPkValuesByColumn() throws SQLException {
-        Map<String,List<Object>> pkValuesMap  = parsePkValuesFromStatement();
+    public Map<String, List<Object>> getPkValuesByColumn() throws SQLException {
+        Map<String, List<Object>> pkValuesMap = parsePkValuesFromStatement();
         Set<String> keySet = new HashSet<>(pkValuesMap.keySet());
         //auto increment
-        for (String pkKey:keySet) {
+        for (String pkKey : keySet) {
             List<Object> pkValues = pkValuesMap.get(pkKey);
             // pk auto generated while single insert primary key is expression
             if (pkValues.size() == 1 && (pkValues.get(0) instanceof SqlMethodExpr)) {
@@ -212,7 +210,7 @@ public class MySQLInsertExecutor extends BaseInsertExecutor implements Defaultab
         }
 
         Map<String, List<Object>> pkValuesMap = new HashMap<>(1, 1.001f);
-        pkValuesMap.put(autoColumnName,pkValues);
+        pkValuesMap.put(autoColumnName, pkValues);
         return pkValuesMap;
     }
 

@@ -15,8 +15,6 @@
  */
 package io.seata.tm.api;
 
-import java.util.concurrent.TimeUnit;
-
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
@@ -26,6 +24,8 @@ import io.seata.core.logger.StackTraceLogger;
 import io.seata.core.model.GlobalStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Default failure handler.
@@ -48,8 +48,8 @@ public class DefaultFailureHandlerImpl implements FailureHandler {
     private static final int TICKS_PER_WHEEL = 8;
 
     private HashedWheelTimer timer = new HashedWheelTimer(
-        new NamedThreadFactory("failedTransactionRetry", 1),
-        TICK_DURATION, TimeUnit.SECONDS, TICKS_PER_WHEEL);
+            new NamedThreadFactory("failedTransactionRetry", 1),
+            TICK_DURATION, TimeUnit.SECONDS, TICKS_PER_WHEEL);
 
     @Override
     public void onBeginFailure(GlobalTransaction tx, Throwable cause) {
@@ -70,9 +70,9 @@ public class DefaultFailureHandlerImpl implements FailureHandler {
 
     @Override
     public void onRollbackRetrying(GlobalTransaction tx, Throwable originalException) {
-        StackTraceLogger.warn(LOGGER, originalException, "Retrying to rollback transaction[{}]", new String[] {tx.getXid()});
+        StackTraceLogger.warn(LOGGER, originalException, "Retrying to rollback transaction[{}]", new String[]{tx.getXid()});
         timer.newTimeout(new CheckTimerTask(tx, GlobalStatus.RollbackRetrying), SCHEDULE_INTERVAL_SECONDS,
-            TimeUnit.SECONDS);
+                TimeUnit.SECONDS);
     }
 
     protected class CheckTimerTask implements TimerTask {
@@ -97,6 +97,7 @@ public class DefaultFailureHandlerImpl implements FailureHandler {
                     LOGGER.error("transaction [{}] retry fetch status times exceed the limit [{} times]", tx.getXid(), RETRY_MAX_TIMES);
                     return;
                 }
+
                 isStopped = shouldStop(tx, required);
                 timer.newTimeout(this, SCHEDULE_INTERVAL_SECONDS, TimeUnit.SECONDS);
             }

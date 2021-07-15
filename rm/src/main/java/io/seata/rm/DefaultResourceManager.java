@@ -15,11 +15,6 @@
  */
 package io.seata.rm;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import io.seata.common.exception.FrameworkException;
 import io.seata.common.loader.EnhancedServiceLoader;
 import io.seata.common.util.CollectionUtils;
@@ -28,6 +23,11 @@ import io.seata.core.model.BranchStatus;
 import io.seata.core.model.BranchType;
 import io.seata.core.model.Resource;
 import io.seata.core.model.ResourceManager;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * default resource manager, adapt all resource managers
@@ -40,7 +40,7 @@ public class DefaultResourceManager implements ResourceManager {
      * all resource managers
      */
     protected static Map<BranchType, ResourceManager> resourceManagers
-        = new ConcurrentHashMap<>();
+            = new ConcurrentHashMap<>();
 
     private DefaultResourceManager() {
         initResourceManagers();
@@ -58,8 +58,8 @@ public class DefaultResourceManager implements ResourceManager {
     /**
      * only for mock
      *
-     * @param branchType  branchType
-     * @param rm resource manager
+     * @param branchType branchType
+     * @param rm         resource manager
      */
     public static void mockResourceManager(BranchType branchType, ResourceManager rm) {
         resourceManagers.put(branchType, rm);
@@ -78,23 +78,23 @@ public class DefaultResourceManager implements ResourceManager {
     @Override
     public BranchStatus branchCommit(BranchType branchType, String xid, long branchId,
                                      String resourceId, String applicationData)
-        throws TransactionException {
+            throws TransactionException {
         return getResourceManager(branchType).branchCommit(branchType, xid, branchId, resourceId, applicationData);
     }
 
     @Override
     public BranchStatus branchRollback(BranchType branchType, String xid, long branchId,
                                        String resourceId, String applicationData)
-        throws TransactionException {
+            throws TransactionException {
         return getResourceManager(branchType).branchRollback(branchType, xid, branchId, resourceId, applicationData);
     }
 
     @Override
     public Long branchRegister(BranchType branchType, String resourceId,
                                String clientId, String xid, String applicationData, String lockKeys)
-        throws TransactionException {
+            throws TransactionException {
         return getResourceManager(branchType).branchRegister(branchType, resourceId, clientId, xid, applicationData,
-            lockKeys);
+                lockKeys);
     }
 
     @Override

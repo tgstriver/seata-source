@@ -17,6 +17,7 @@ package io.seata.core.store.db.sql.log;
 
 /**
  * Database log store sql
+ *
  * @author will
  */
 public interface LogStoreSqls {
@@ -121,7 +122,7 @@ public interface LogStoreSqls {
     /**
      * Get query branch transaction string.
      *
-     * @param branchTable the branch table
+     * @param branchTable       the branch table
      * @param paramsPlaceHolder the params place holder
      * @return the string
      */

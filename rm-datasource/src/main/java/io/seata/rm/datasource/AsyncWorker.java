@@ -15,6 +15,15 @@
  */
 package io.seata.rm.datasource;
 
+import com.google.common.collect.Lists;
+import io.seata.common.thread.NamedThreadFactory;
+import io.seata.config.ConfigurationFactory;
+import io.seata.core.model.BranchStatus;
+import io.seata.rm.datasource.undo.UndoLogManager;
+import io.seata.rm.datasource.undo.UndoLogManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -31,17 +40,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Lists;
-import io.seata.common.thread.NamedThreadFactory;
-import io.seata.config.ConfigurationFactory;
-import io.seata.core.model.BranchStatus;
-import io.seata.rm.datasource.undo.UndoLogManager;
-import io.seata.rm.datasource.undo.UndoLogManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static io.seata.core.constants.ConfigurationKeys.CLIENT_ASYNC_COMMIT_BUFFER_LIMIT;
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_ASYNC_COMMIT_BUFFER_LIMIT;
+import static io.seata.core.constants.ConfigurationKeys.CLIENT_ASYNC_COMMIT_BUFFER_LIMIT;
 
 /**
  * The type Async worker.
@@ -57,7 +57,7 @@ public class AsyncWorker {
     private static final int UNDOLOG_DELETE_LIMIT_SIZE = 1000;
 
     private static final int ASYNC_COMMIT_BUFFER_LIMIT = ConfigurationFactory.getInstance().getInt(
-        CLIENT_ASYNC_COMMIT_BUFFER_LIMIT, DEFAULT_CLIENT_ASYNC_COMMIT_BUFFER_LIMIT);
+            CLIENT_ASYNC_COMMIT_BUFFER_LIMIT, DEFAULT_CLIENT_ASYNC_COMMIT_BUFFER_LIMIT);
 
     private final DataSourceManager dataSourceManager;
 
@@ -83,15 +83,14 @@ public class AsyncWorker {
     }
 
     /**
-     * try add context to commitQueue directly, if fail(which means the queue is full),
-     * then doBranchCommit urgently(so that the queue could be empty again) and retry this process.
+     * 尝试直接将上下文添加到commitQueue中，如果失败（这意味着队列已满），则紧急执行doBranchCommit（以便队列可能再次为空）并重试此过程
      */
     private void addToCommitQueue(Phase2Context context) {
-        if (commitQueue.offer(context)) {
+        if (commitQueue.offer(context)) { // 将上下文添加到commitQueue中，该队列将由两个守护线程每隔1秒扫描一次
             return;
         }
-        CompletableFuture.runAsync(this::doBranchCommitSafely, scheduledExecutor)
-                .thenRun(() -> addToCommitQueue(context));
+
+        CompletableFuture.runAsync(this::doBranchCommitSafely, scheduledExecutor).thenRun(() -> addToCommitQueue(context));
     }
 
     void doBranchCommitSafely() {
@@ -107,11 +106,11 @@ public class AsyncWorker {
             return;
         }
 
-        // transfer all context currently received to this list
+        // 将当前接收到的所有上下文转移到此列表
         List<Phase2Context> allContexts = new LinkedList<>();
         commitQueue.drainTo(allContexts);
 
-        // group context by their resourceId
+        // 按resourceId对上下文进行分组
         Map<String, List<Phase2Context>> groupedContexts = groupedByResourceId(allContexts);
 
         groupedContexts.forEach(this::dealWithGroupedContexts);
@@ -157,6 +156,7 @@ public class AsyncWorker {
         });
 
         try {
+            // 根据xid和branch_id批量删除undo_log中的记录
             undoLogManager.batchDeleteUndoLog(xids, branchIds, conn);
             if (!conn.getAutoCommit()) {
                 conn.commit();
@@ -181,9 +181,10 @@ public class AsyncWorker {
 
         /**
          * AT Phase 2 context
-         * @param xid             the xid
-         * @param branchId        the branch id
-         * @param resourceId      the resource id
+         *
+         * @param xid        the xid
+         * @param branchId   the branch id
+         * @param resourceId the resource id
          */
         public Phase2Context(String xid, long branchId, String resourceId) {
             this.xid = xid;

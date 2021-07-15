@@ -15,20 +15,19 @@
  */
 package io.seata.rm.datasource;
 
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.Set;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-
-
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.util.CollectionUtils;
 import io.seata.rm.datasource.undo.SQLUndoLog;
+
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The type Connection context.
@@ -103,6 +102,7 @@ public class ConnectionContext {
 
     /**
      * Append savepoint
+     *
      * @param savepoint the savepoint
      */
     void appendSavepoint(Savepoint savepoint) {
@@ -176,6 +176,7 @@ public class ConnectionContext {
         if (xid == null) {
             throw new IllegalArgumentException("xid should not be null");
         }
+
         if (!inGlobalTransaction()) {
             setXid(xid);
         } else {
@@ -289,6 +290,7 @@ public class ConnectionContext {
         if (lockKeysBuffer.isEmpty()) {
             return null;
         }
+
         Set<String> lockKeysBufferSet = new HashSet<>();
         for (Set<String> lockKeys : lockKeysBuffer.values()) {
             lockKeysBufferSet.addAll(lockKeys);
@@ -325,6 +327,7 @@ public class ConnectionContext {
 
     /**
      * Get the savepoints after target savepoint(include the param savepoint)
+     *
      * @param savepoint the target savepoint
      * @return after savepoints
      */
@@ -339,7 +342,7 @@ public class ConnectionContext {
     @Override
     public String toString() {
         return "ConnectionContext [xid=" + xid + ", branchId=" + branchId + ", lockKeysBuffer=" + lockKeysBuffer
-            + ", sqlUndoItemsBuffer=" + sqlUndoItemsBuffer + "]";
+                + ", sqlUndoItemsBuffer=" + sqlUndoItemsBuffer + "]";
     }
 
 }
