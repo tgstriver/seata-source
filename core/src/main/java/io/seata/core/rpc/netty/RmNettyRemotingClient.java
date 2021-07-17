@@ -67,7 +67,7 @@ public final class RmNettyRemotingClient extends AbstractNettyRemotingClient {
 
     @Override
     public void init() {
-        // registry processor
+        // 注册处理器
         registerProcessor();
         if (initialized.compareAndSet(false, true)) {
             super.init();
@@ -111,10 +111,10 @@ public final class RmNettyRemotingClient extends AbstractNettyRemotingClient {
                 if (instance == null) {
                     NettyClientConfig nettyClientConfig = new NettyClientConfig();
                     final ThreadPoolExecutor messageExecutor = new ThreadPoolExecutor(
-                        nettyClientConfig.getClientWorkerThreads(), nettyClientConfig.getClientWorkerThreads(),
-                        KEEP_ALIVE_TIME, TimeUnit.SECONDS, new LinkedBlockingQueue<>(MAX_QUEUE_SIZE),
-                        new NamedThreadFactory(nettyClientConfig.getRmDispatchThreadPrefix(),
-                            nettyClientConfig.getClientWorkerThreads()), new ThreadPoolExecutor.CallerRunsPolicy());
+                            nettyClientConfig.getClientWorkerThreads(), nettyClientConfig.getClientWorkerThreads(),
+                            KEEP_ALIVE_TIME, TimeUnit.SECONDS, new LinkedBlockingQueue<>(MAX_QUEUE_SIZE),
+                            new NamedThreadFactory(nettyClientConfig.getRmDispatchThreadPrefix(),
+                                    nettyClientConfig.getClientWorkerThreads()), new ThreadPoolExecutor.CallerRunsPolicy());
                     instance = new RmNettyRemotingClient(nettyClientConfig, null, messageExecutor);
                 }
             }
@@ -152,8 +152,8 @@ public final class RmNettyRemotingClient extends AbstractNettyRemotingClient {
     @Override
     public void onRegisterMsgSuccess(String serverAddress, Channel channel, Object response,
                                      AbstractMessage requestMessage) {
-        RegisterRMRequest registerRMRequest = (RegisterRMRequest)requestMessage;
-        RegisterRMResponse registerRMResponse = (RegisterRMResponse)response;
+        RegisterRMRequest registerRMRequest = (RegisterRMRequest) requestMessage;
+        RegisterRMResponse registerRMResponse = (RegisterRMResponse) response;
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("register RM success. client version:{}, server version:{},channel:{}", registerRMRequest.getVersion(), registerRMResponse.getVersion(), channel);
         }
@@ -170,10 +170,10 @@ public final class RmNettyRemotingClient extends AbstractNettyRemotingClient {
     @Override
     public void onRegisterMsgFail(String serverAddress, Channel channel, Object response,
                                   AbstractMessage requestMessage) {
-        RegisterRMRequest registerRMRequest = (RegisterRMRequest)requestMessage;
-        RegisterRMResponse registerRMResponse = (RegisterRMResponse)response;
+        RegisterRMRequest registerRMRequest = (RegisterRMRequest) requestMessage;
+        RegisterRMResponse registerRMResponse = (RegisterRMResponse) response;
         String errMsg = String.format(
-            "register RM failed. client version: %s,server version: %s, errorMsg: %s, " + "channel: %s", registerRMRequest.getVersion(), registerRMResponse.getVersion(), registerRMResponse.getMsg(), channel);
+                "register RM failed. client version: %s,server version: %s, errorMsg: %s, " + "channel: %s", registerRMRequest.getVersion(), registerRMResponse.getVersion(), registerRMResponse.getMsg(), channel);
         throw new FrameworkException(errMsg);
     }
 
@@ -279,7 +279,7 @@ public final class RmNettyRemotingClient extends AbstractNettyRemotingClient {
         super.registerProcessor(MessageType.TYPE_RM_DELETE_UNDOLOG, rmUndoLogProcessor, messageExecutor);
         // 4.registry TC response processor
         ClientOnResponseProcessor onResponseProcessor =
-            new ClientOnResponseProcessor(mergeMsgMap, super.getFutures(), getTransactionMessageHandler());
+                new ClientOnResponseProcessor(mergeMsgMap, super.getFutures(), getTransactionMessageHandler());
         super.registerProcessor(MessageType.TYPE_SEATA_MERGE_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_BRANCH_REGISTER_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_BRANCH_STATUS_REPORT_RESULT, onResponseProcessor, null);

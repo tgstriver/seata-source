@@ -64,8 +64,8 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
                     doGlobalBegin(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore,
-                        String.format("begin global request failed. xid=%s, msg=%s", response.getXid(), e.getMessage()),
-                        e);
+                            String.format("begin global request failed. xid=%s, msg=%s", response.getXid(), e.getMessage()),
+                            e);
                 }
             }
         }, request, response);
@@ -89,15 +89,16 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<GlobalCommitRequest, GlobalCommitResponse>() {
             @Override
             public void execute(GlobalCommitRequest request, GlobalCommitResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doGlobalCommit(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore,
-                        String.format("global commit request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
-                        e);
+                            String.format("global commit request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
+                            e);
                 }
             }
+
             @Override
             public void onTransactionException(GlobalCommitRequest request, GlobalCommitResponse response,
                                                TransactionException tex) {
@@ -134,12 +135,12 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<GlobalRollbackRequest, GlobalRollbackResponse>() {
             @Override
             public void execute(GlobalRollbackRequest request, GlobalRollbackResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doGlobalRollback(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore, String
-                        .format("global rollback request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()), e);
+                            .format("global rollback request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()), e);
                 }
             }
 
@@ -178,12 +179,12 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<BranchRegisterRequest, BranchRegisterResponse>() {
             @Override
             public void execute(BranchRegisterRequest request, BranchRegisterResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doBranchRegister(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore, String
-                        .format("branch register request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()), e);
+                            .format("branch register request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()), e);
                 }
             }
         }, request, response);
@@ -207,13 +208,13 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<BranchReportRequest, BranchReportResponse>() {
             @Override
             public void execute(BranchReportRequest request, BranchReportResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doBranchReport(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore, String
-                        .format("branch report request failed. xid=%s, branchId=%s, msg=%s", request.getXid(),
-                            request.getBranchId(), e.getMessage()), e);
+                            .format("branch report request failed. xid=%s, branchId=%s, msg=%s", request.getXid(),
+                                    request.getBranchId(), e.getMessage()), e);
                 }
             }
         }, request, response);
@@ -236,13 +237,13 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<GlobalLockQueryRequest, GlobalLockQueryResponse>() {
             @Override
             public void execute(GlobalLockQueryRequest request, GlobalLockQueryResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doLockCheck(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore, String
-                        .format("global lock query request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
-                        e);
+                            .format("global lock query request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
+                            e);
                 }
             }
         }, request, response);
@@ -267,13 +268,13 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<GlobalStatusRequest, GlobalStatusResponse>() {
             @Override
             public void execute(GlobalStatusRequest request, GlobalStatusResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 try {
                     doGlobalStatus(request, response, rpcContext);
                 } catch (StoreException e) {
                     throw new TransactionException(TransactionExceptionCode.FailedStore,
-                        String.format("global status request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
-                        e);
+                            String.format("global status request failed. xid=%s, msg=%s", request.getXid(), e.getMessage()),
+                            e);
                 }
             }
 
@@ -311,7 +312,7 @@ public abstract class AbstractTCInboundHandler extends AbstractExceptionHandler 
         exceptionHandleTemplate(new AbstractCallback<GlobalReportRequest, GlobalReportResponse>() {
             @Override
             public void execute(GlobalReportRequest request, GlobalReportResponse response)
-                throws TransactionException {
+                    throws TransactionException {
                 doGlobalReport(request, response, rpcContext);
             }
         }, request, response);

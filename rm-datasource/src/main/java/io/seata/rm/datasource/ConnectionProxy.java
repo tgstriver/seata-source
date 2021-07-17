@@ -114,11 +114,11 @@ public class ConnectionProxy extends AbstractConnectionProxy {
         if (StringUtils.isBlank(lockKeys)) {
             return;
         }
-        // Just check lock without requiring lock by now.
+
         try {
             boolean lockable = DefaultResourceManager.get().lockQuery(BranchType.AT,
                 getDataSourceProxy().getResourceId(), context.getXid(), lockKeys);
-            if (!lockable) {
+            if (!lockable) { // 获取全局锁失败
                 throw new LockConflictException();
             }
         } catch (TransactionException e) {

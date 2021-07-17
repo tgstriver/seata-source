@@ -15,10 +15,10 @@
  */
 package io.seata.core.protocol;
 
-import java.io.Serializable;
-
 import io.seata.common.util.NetUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.Serializable;
 
 import static io.seata.core.constants.ConfigurationKeys.EXTRA_DATA_SPLIT_CHAR;
 
@@ -58,6 +58,7 @@ public class RegisterTMRequest extends AbstractIdentifyRequest implements Serial
                 sb.append(EXTRA_DATA_SPLIT_CHAR);
             }
         }
+
         if (transactionServiceGroup != null && !transactionServiceGroup.isEmpty()) {
             sb.append(String.format("%s=%s", UDATA_VGROUP, transactionServiceGroup));
             sb.append(EXTRA_DATA_SPLIT_CHAR);
@@ -89,8 +90,8 @@ public class RegisterTMRequest extends AbstractIdentifyRequest implements Serial
     @Override
     public String toString() {
         return "RegisterTMRequest{" +
-            "applicationId='" + applicationId + '\'' +
-            ", transactionServiceGroup='" + transactionServiceGroup + '\'' +
-            '}';
+                "applicationId='" + applicationId + '\'' +
+                ", transactionServiceGroup='" + transactionServiceGroup + '\'' +
+                '}';
     }
 }

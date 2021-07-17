@@ -19,12 +19,14 @@ import io.seata.core.model.GlobalLockConfig;
 
 /**
  * executor to execute business logic that require global lock
+ *
  * @author selfishlover
  */
 public interface GlobalLockExecutor {
 
     /**
      * execute business logic
+     *
      * @return business return
      * @throws Throwable whatever throw during execution
      */
@@ -32,6 +34,7 @@ public interface GlobalLockExecutor {
 
     /**
      * global lock config info
+     *
      * @return
      */
     GlobalLockConfig getGlobalLockConfig();

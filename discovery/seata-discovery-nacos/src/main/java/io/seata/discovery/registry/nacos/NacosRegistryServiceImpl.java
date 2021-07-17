@@ -121,6 +121,7 @@ public class NacosRegistryServiceImpl implements RegistryService<EventListener> 
         if (clusterName == null) {
             return null;
         }
+
         if (!LISTENER_SERVICE_MAP.containsKey(clusterName)) {
             synchronized (LOCK_OBJ) {
                 if (!LISTENER_SERVICE_MAP.containsKey(clusterName)) {

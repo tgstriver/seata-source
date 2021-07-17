@@ -15,20 +15,6 @@
  */
 package io.seata.core.rpc.netty;
 
-import java.lang.reflect.Field;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -62,6 +48,20 @@ import io.seata.discovery.loadbalance.LoadBalanceFactory;
 import io.seata.discovery.registry.RegistryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import static io.seata.common.exception.FrameworkErrorCode.NoAvailableService;
 
@@ -108,20 +108,17 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
 
     @Override
     public void init() {
-        timerExecutor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                clientChannelManager.reconnect(getTransactionServiceGroup());
-            }
-        }, SCHEDULE_DELAY_MILLS, SCHEDULE_INTERVAL_MILLS, TimeUnit.MILLISECONDS);
+        // 每隔10秒重新连接一次当前事务服务组的远程服务器
+        timerExecutor.scheduleAtFixedRate(() -> clientChannelManager.reconnect(getTransactionServiceGroup()), SCHEDULE_DELAY_MILLS, SCHEDULE_INTERVAL_MILLS, TimeUnit.MILLISECONDS);
         if (NettyClientConfig.isEnableClientBatchSendRequest()) {
             mergeSendExecutorService = new ThreadPoolExecutor(MAX_MERGE_SEND_THREAD,
-                MAX_MERGE_SEND_THREAD,
-                KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(),
-                new NamedThreadFactory(getThreadPrefix(), MAX_MERGE_SEND_THREAD));
+                    MAX_MERGE_SEND_THREAD,
+                    KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(),
+                    new NamedThreadFactory(getThreadPrefix(), MAX_MERGE_SEND_THREAD));
             mergeSendExecutorService.submit(new MergedSendRunnable());
         }
+
         super.init();
         clientBootstrap.start();
     }
@@ -133,7 +130,7 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
         clientBootstrap = new NettyClientBootstrap(nettyClientConfig, eventExecutorGroup, transactionRole);
         clientBootstrap.setChannelHandlers(new ClientHandler());
         clientChannelManager = new NettyClientChannelManager(
-            new NettyPoolableFactory(this, clientBootstrap), getPoolKeyFunction(), nettyClientConfig);
+                new NettyPoolableFactory(this, clientBootstrap), getPoolKeyFunction(), nettyClientConfig);
     }
 
     @Override
@@ -154,7 +151,7 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
 
             // put message into basketMap
             BlockingQueue<RpcMessage> basket = CollectionUtils.computeIfAbsent(basketMap, serverAddress,
-                key -> new LinkedBlockingQueue<>());
+                    key -> new LinkedBlockingQueue<>());
             if (!basket.offer(rpcMessage)) {
                 LOGGER.error("put message into basketMap offer failed, serverAddress:{},rpcMessage:{}",
                         serverAddress, rpcMessage);
@@ -173,7 +170,7 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
                 return messageFuture.get(timeoutMillis, TimeUnit.MILLISECONDS);
             } catch (Exception exx) {
                 LOGGER.error("wait response error:{},ip:{},request:{}",
-                    exx.getMessage(), serverAddress, rpcMessage.getBody());
+                        exx.getMessage(), serverAddress, rpcMessage.getBody());
                 if (exx instanceof TimeoutException) {
                     throw (TimeoutException) exx;
                 } else {
@@ -205,8 +202,8 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
             return;
         }
         RpcMessage rpcMessage = buildRequestMessage(msg, msg instanceof HeartbeatMessage
-            ? ProtocolConstants.MSGTYPE_HEARTBEAT_REQUEST
-            : ProtocolConstants.MSGTYPE_RESQUEST_ONEWAY);
+                ? ProtocolConstants.MSGTYPE_HEARTBEAT_REQUEST
+                : ProtocolConstants.MSGTYPE_RESQUEST_ONEWAY);
         if (rpcMessage.getBody() instanceof MergeMessage) {
             mergeMsgMap.put(rpcMessage.getId(), (MergeMessage) rpcMessage.getBody());
         }
@@ -447,7 +444,7 @@ public abstract class AbstractNettyRemotingClient extends AbstractNettyRemoting 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             LOGGER.error(FrameworkErrorCode.ExceptionCaught.getErrCode(),
-                NetUtil.toStringAddress(ctx.channel().remoteAddress()) + "connect exception. " + cause.getMessage(), cause);
+                    NetUtil.toStringAddress(ctx.channel().remoteAddress()) + "connect exception. " + cause.getMessage(), cause);
             clientChannelManager.releaseChannel(ctx.channel(), getAddressFromChannel(ctx.channel()));
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("remove exception rm channel:{}", ctx.channel());

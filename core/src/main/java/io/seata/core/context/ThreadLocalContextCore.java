@@ -15,9 +15,10 @@
  */
 package io.seata.core.context;
 
+import io.seata.common.loader.LoadLevel;
+
 import java.util.HashMap;
 import java.util.Map;
-import io.seata.common.loader.LoadLevel;
 
 /**
  * The type Thread local context core.

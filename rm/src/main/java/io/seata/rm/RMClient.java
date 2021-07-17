@@ -32,9 +32,10 @@ public class RMClient {
      */
     public static void init(String applicationId, String transactionServiceGroup) {
         RmNettyRemotingClient rmNettyRemotingClient = RmNettyRemotingClient.getInstance(applicationId, transactionServiceGroup);
+        // 初始化所有的资源管理器
         rmNettyRemotingClient.setResourceManager(DefaultResourceManager.get());
+        // 初始化所有的事务消息处理器
         rmNettyRemotingClient.setTransactionMessageHandler(DefaultRMHandler.get());
         rmNettyRemotingClient.init();
     }
-
 }

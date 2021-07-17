@@ -137,13 +137,9 @@ public class DefaultCore implements Core {
         GlobalSession session = GlobalSession.createGlobalSession(applicationId, transactionServiceGroup, name, timeout);
         MDC.put(RootContext.MDC_KEY_XID, session.getXid());
 
-        /**
-         * 1:为session中添加回调监听
-         * 2:SessionHolder.getRootSessionManager()去获取一个全局session管理器(DataBaseSessionManager)
-         */
         session.addSessionLifecycleListener(SessionHolder.getRootSessionManager());
 
-        //开启全局事务，实际上是向global_table中插入了一条记录
+        // 开启全局事务，实际上是向global_table中插入了一条记录
         session.begin();
 
         // 向事件总线发送开启全局事务事件，用于metric收集

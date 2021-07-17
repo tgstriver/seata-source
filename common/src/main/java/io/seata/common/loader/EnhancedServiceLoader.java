@@ -15,6 +15,13 @@
  */
 package io.seata.common.loader;
 
+import io.seata.common.Constants;
+import io.seata.common.executor.Initialize;
+import io.seata.common.util.CollectionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,13 +36,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
-
-import io.seata.common.Constants;
-import io.seata.common.executor.Initialize;
-import io.seata.common.util.CollectionUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The type Enhanced service loader.
@@ -192,8 +192,7 @@ public class EnhancedServiceLoader {
         private static final String SERVICES_DIRECTORY = "META-INF/services/";
         private static final String SEATA_DIRECTORY = "META-INF/seata/";
 
-        private static final ConcurrentMap<Class<?>, InnerEnhancedServiceLoader<?>> SERVICE_LOADERS =
-                new ConcurrentHashMap<>();
+        private static final ConcurrentMap<Class<?>, InnerEnhancedServiceLoader<?>> SERVICE_LOADERS = new ConcurrentHashMap<>();
 
         private final Class<S> type;
         private final Holder<List<ExtensionDefinition>> definitionsHolder = new Holder<>();
@@ -217,8 +216,8 @@ public class EnhancedServiceLoader {
             if (type == null) {
                 throw new IllegalArgumentException("Enhanced Service type == null");
             }
-            return (InnerEnhancedServiceLoader<S>)CollectionUtils.computeIfAbsent(SERVICE_LOADERS, type,
-                key -> new InnerEnhancedServiceLoader<>(type));
+            return (InnerEnhancedServiceLoader<S>) CollectionUtils.computeIfAbsent(SERVICE_LOADERS, type,
+                    key -> new InnerEnhancedServiceLoader<>(type));
         }
 
         /**
@@ -272,7 +271,7 @@ public class EnhancedServiceLoader {
          * @param activateName the activate name
          * @param argsType     the args type
          * @param args         the args
-         * @param loader  the class loader
+         * @param loader       the class loader
          * @return the s
          * @throws EnhancedServiceNotFoundException the enhanced service not found exception
          */
@@ -283,8 +282,8 @@ public class EnhancedServiceLoader {
 
         /**
          * get all implements
-         * @param loader  the class loader
          *
+         * @param loader the class loader
          * @return list list
          */
         private List<S> loadAll(ClassLoader loader) {
@@ -304,6 +303,7 @@ public class EnhancedServiceLoader {
             if (CollectionUtils.isEmpty(allClazzs)) {
                 return allInstances;
             }
+
             try {
                 for (Class clazz : allClazzs) {
                     ExtensionDefinition definition = classToDefinitionMap.get(clazz);
@@ -335,11 +335,11 @@ public class EnhancedServiceLoader {
                 return getExtensionInstance(defaultExtensionDefinition, loader, argTypes, args);
             } catch (Throwable e) {
                 if (e instanceof EnhancedServiceNotFoundException) {
-                    throw (EnhancedServiceNotFoundException)e;
+                    throw (EnhancedServiceNotFoundException) e;
                 } else {
                     throw new EnhancedServiceNotFoundException(
-                        "not found service provider for : " + type.getName() + " caused by " + ExceptionUtils
-                            .getFullStackTrace(e));
+                            "not found service provider for : " + type.getName() + " caused by " + ExceptionUtils
+                                    .getFullStackTrace(e));
                 }
             }
         }
@@ -356,7 +356,7 @@ public class EnhancedServiceLoader {
                 return getExtensionInstance(cachedExtensionDefinition, loader, argTypes, args);
             } catch (Throwable e) {
                 if (e instanceof EnhancedServiceNotFoundException) {
-                    throw (EnhancedServiceNotFoundException)e;
+                    throw (EnhancedServiceNotFoundException) e;
                 } else {
                     throw new EnhancedServiceNotFoundException(
                             "not found service provider for : " + type.getName() + " caused by " + ExceptionUtils
@@ -372,7 +372,7 @@ public class EnhancedServiceLoader {
             }
             if (Scope.SINGLETON.equals(definition.getScope())) {
                 Holder<Object> holder = CollectionUtils.computeIfAbsent(definitionToInstanceMap, definition,
-                    key -> new Holder<>());
+                        key -> new Holder<>());
                 Object instance = holder.get();
                 if (instance == null) {
                     synchronized (holder) {
@@ -383,7 +383,7 @@ public class EnhancedServiceLoader {
                         }
                     }
                 }
-                return (S)instance;
+                return (S) instance;
             } else {
                 return createNewExtension(definition, loader, argTypes, args);
             }
@@ -491,7 +491,7 @@ public class EnhancedServiceLoader {
         }
 
         private ExtensionDefinition getUnloadedExtensionDefinition(String className, ClassLoader loader)
-            throws ClassNotFoundException {
+                throws ClassNotFoundException {
             //Check whether the definition has been loaded
             if (!isDefinitionContainsClazz(className, loader)) {
                 Class<?> clazz = Class.forName(className, true, loader);
@@ -561,13 +561,14 @@ public class EnhancedServiceLoader {
                 s = type.cast(implClazz.newInstance());
             }
             if (s instanceof Initialize) {
-                ((Initialize)s).init();
+                ((Initialize) s).init();
             }
             return s;
         }
 
         /**
          * Helper Class for hold a value.
+         *
          * @param <T>
          */
         private static class Holder<T> {

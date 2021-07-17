@@ -23,7 +23,7 @@ import io.seata.core.rpc.RpcContext;
  *
  * @author slievrly
  */
-public class GlobalLockQueryRequest extends BranchRegisterRequest  {
+public class GlobalLockQueryRequest extends BranchRegisterRequest {
 
     @Override
     public short getTypeCode() {

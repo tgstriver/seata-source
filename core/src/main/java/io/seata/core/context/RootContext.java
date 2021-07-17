@@ -15,16 +15,16 @@
  */
 package io.seata.core.context;
 
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.util.StringUtils;
 import io.seata.core.model.BranchType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 import static io.seata.core.model.BranchType.AT;
 import static io.seata.core.model.BranchType.XA;
@@ -48,12 +48,14 @@ public class RootContext {
 
     /**
      * The constant MDC_KEY_XID for logback
+     *
      * @since 1.5.0
      */
     public static final String MDC_KEY_XID = "X-TX-XID";
 
     /**
      * The constant MDC_KEY_BRANCH_ID for logback
+     *
      * @since 1.5.0
      */
     public static final String MDC_KEY_BRANCH_ID = "X-TX-BRANCH-ID";
@@ -76,11 +78,11 @@ public class RootContext {
     public static void setDefaultBranchType(BranchType defaultBranchType) {
         if (defaultBranchType != AT && defaultBranchType != XA) {
             throw new IllegalArgumentException("The default branch type must be " + AT + " or " + XA + "." +
-                " the value of the argument is: " + defaultBranchType);
+                    " the value of the argument is: " + defaultBranchType);
         }
         if (DEFAULT_BRANCH_TYPE != null && DEFAULT_BRANCH_TYPE != defaultBranchType && LOGGER.isWarnEnabled()) {
             LOGGER.warn("The `{}.DEFAULT_BRANCH_TYPE` has been set repeatedly. The value changes from {} to {}",
-                RootContext.class.getSimpleName(), DEFAULT_BRANCH_TYPE, defaultBranchType);
+                    RootContext.class.getSimpleName(), DEFAULT_BRANCH_TYPE, defaultBranchType);
         }
         DEFAULT_BRANCH_TYPE = defaultBranchType;
     }
@@ -116,7 +118,7 @@ public class RootContext {
     }
 
     /**
-     * declare local transactions will use global lock check for update/delete/insert/selectForUpdate SQL
+     * 声明本地事务将对update/delete/insert/selectForUpdate使用全局锁检查
      */
     public static void bindGlobalLockFlag() {
         if (LOGGER.isDebugEnabled()) {

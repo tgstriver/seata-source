@@ -39,8 +39,7 @@ public class DefaultResourceManager implements ResourceManager {
     /**
      * all resource managers
      */
-    protected static Map<BranchType, ResourceManager> resourceManagers
-            = new ConcurrentHashMap<>();
+    protected static Map<BranchType, ResourceManager> resourceManagers = new ConcurrentHashMap<>();
 
     private DefaultResourceManager() {
         initResourceManagers();
@@ -66,7 +65,7 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     protected void initResourceManagers() {
-        //init all resource managers
+        //初始化所有的资源管理器
         List<ResourceManager> allResourceManagers = EnhancedServiceLoader.loadAll(ResourceManager.class);
         if (CollectionUtils.isNotEmpty(allResourceManagers)) {
             for (ResourceManager rm : allResourceManagers) {

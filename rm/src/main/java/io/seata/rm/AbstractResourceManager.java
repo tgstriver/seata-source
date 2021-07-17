@@ -84,7 +84,7 @@ public abstract class AbstractResourceManager implements ResourceManager {
      * @param branchId        the branch id
      * @param status          the status
      * @param applicationData the application data
-     * @throws TransactionException  TransactionException
+     * @throws TransactionException TransactionException
      */
     @Override
     public void branchReport(BranchType branchType, String xid, long branchId, BranchStatus status, String applicationData) throws TransactionException {

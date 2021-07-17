@@ -21,13 +21,14 @@ import io.seata.core.model.GlobalLockConfig;
 
 /**
  * executor template for local transaction which need global lock
+ *
  * @author selfishlover
  */
 public class GlobalLockTemplate {
 
     public Object execute(GlobalLockExecutor executor) throws Throwable {
         boolean alreadyInGlobalLock = RootContext.requireGlobalLock();
-        if (!alreadyInGlobalLock) {
+        if (!alreadyInGlobalLock) { // 如果全局锁标志不存在，则绑定全局锁标志。其实就是向ThreadLocal中添加了一个TX_LOCK=true的变量
             RootContext.bindGlobalLockFlag();
         }
 

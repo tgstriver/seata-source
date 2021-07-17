@@ -107,10 +107,11 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         // 全局分布式事务的id
         String xid = RootContext.getXID();
         if (xid != null) {
-            // 把全局事务id绑定到我们的ConnectionProxy上
+            // 把全局事务id绑定到ConnectionProxy上
             statementProxy.getConnectionProxy().bind(xid);
         }
 
+        // 把是否需要获取全局锁标志绑定到ConnectionProxy上
         statementProxy.getConnectionProxy().setGlobalLockRequire(RootContext.requireGlobalLock());
         // 执行我们的业务sql
         return doExecute(args);

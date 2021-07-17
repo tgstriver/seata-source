@@ -59,7 +59,7 @@ class NettyClientChannelManager {
     private Function<String, NettyPoolKey> poolKeyFunction;
 
     NettyClientChannelManager(final NettyPoolableFactory keyPoolableFactory, final Function<String, NettyPoolKey> poolKeyFunction,
-                                     final NettyClientConfig clientConfig) {
+                              final NettyClientConfig clientConfig) {
         nettyClientKeyPool = new GenericKeyedObjectPool<>(keyPoolableFactory);
         nettyClientKeyPool.setConfig(getNettyPoolConfig(clientConfig));
         this.poolKeyFunction = poolKeyFunction;
@@ -86,7 +86,7 @@ class NettyClientChannelManager {
     }
 
     /**
-     * Acquire netty client channel connected to remote server.
+     * 获取连接到远程服务器的netty客户端通道
      *
      * @param serverAddress server address
      * @return netty channel
@@ -99,9 +99,11 @@ class NettyClientChannelManager {
                 return channelToServer;
             }
         }
+
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("will connect to " + serverAddress);
         }
+
         Object lockObj = CollectionUtils.computeIfAbsent(channelLocks, serverAddress, key -> new Object());
         synchronized (lockObj) {
             return doConnect(serverAddress);
@@ -111,11 +113,13 @@ class NettyClientChannelManager {
     /**
      * Release channel to pool if necessary.
      *
-     * @param channel channel
+     * @param channel       channel
      * @param serverAddress server address
      */
     void releaseChannel(Channel channel, String serverAddress) {
-        if (channel == null || serverAddress == null) { return; }
+        if (channel == null || serverAddress == null) {
+            return;
+        }
         try {
             synchronized (channelLocks.get(serverAddress)) {
                 Channel ch = channels.get(serverAddress);
@@ -141,10 +145,12 @@ class NettyClientChannelManager {
      * Destroy channel.
      *
      * @param serverAddress server address
-     * @param channel channel
+     * @param channel       channel
      */
     void destroyChannel(String serverAddress, Channel channel) {
-        if (channel == null) { return; }
+        if (channel == null) {
+            return;
+        }
         try {
             if (channel.equals(channels.get(serverAddress))) {
                 channels.remove(serverAddress);
@@ -156,18 +162,19 @@ class NettyClientChannelManager {
     }
 
     /**
-     * Reconnect to remote server of current transaction service group.
+     * 重新连接到当前事务服务组的远程服务器
      *
      * @param transactionServiceGroup transaction service group
      */
     void reconnect(String transactionServiceGroup) {
-        List<String> availList = null;
+        List<String> availList;
         try {
             availList = getAvailServerList(transactionServiceGroup);
         } catch (Exception e) {
             LOGGER.error("Failed to get available servers: {}", e.getMessage(), e);
             return;
         }
+
         if (CollectionUtils.isEmpty(availList)) {
             RegistryService registryService = RegistryFactory.getInstance();
             String clusterName = registryService.getServiceGroup(transactionServiceGroup);
@@ -184,11 +191,12 @@ class NettyClientChannelManager {
             }
             return;
         }
+
         for (String serverAddress : availList) {
             try {
                 acquireChannel(serverAddress);
             } catch (Exception e) {
-                LOGGER.error("{} can not connect to {} cause:{}",FrameworkErrorCode.NetConnect.getErrCode(), serverAddress, e.getMessage(), e);
+                LOGGER.error("{} can not connect to {} cause:{}", FrameworkErrorCode.NetConnect.getErrCode(), serverAddress, e.getMessage(), e);
             }
         }
     }
@@ -210,6 +218,7 @@ class NettyClientChannelManager {
         if (channelToServer != null && channelToServer.isActive()) {
             return channelToServer;
         }
+
         Channel channelFromPool;
         try {
             NettyPoolKey currentPoolKey = poolKeyFunction.apply(serverAddress);
@@ -221,22 +230,21 @@ class NettyClientChannelManager {
             channelFromPool = nettyClientKeyPool.borrowObject(poolKeyMap.get(serverAddress));
             channels.put(serverAddress, channelFromPool);
         } catch (Exception exx) {
-            LOGGER.error("{} register RM failed.",FrameworkErrorCode.RegisterRM.getErrCode(), exx);
+            LOGGER.error("{} register RM failed.", FrameworkErrorCode.RegisterRM.getErrCode(), exx);
             throw new FrameworkException("can not register RM,err:" + exx.getMessage());
         }
         return channelFromPool;
     }
 
     private List<String> getAvailServerList(String transactionServiceGroup) throws Exception {
-        List<InetSocketAddress> availInetSocketAddressList = RegistryFactory.getInstance()
-                                                                            .lookup(transactionServiceGroup);
+        List<InetSocketAddress> availInetSocketAddressList = RegistryFactory.getInstance().lookup(transactionServiceGroup);
         if (CollectionUtils.isEmpty(availInetSocketAddressList)) {
             return Collections.emptyList();
         }
 
         return availInetSocketAddressList.stream()
-                                         .map(NetUtil::toStringAddress)
-                                         .collect(Collectors.toList());
+                .map(NetUtil::toStringAddress)
+                .collect(Collectors.toList());
     }
 
     private Channel getExistAliveChannel(Channel rmChannel, String serverAddress) {

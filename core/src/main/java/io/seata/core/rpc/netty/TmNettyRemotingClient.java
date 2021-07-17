@@ -15,12 +15,6 @@
  */
 package io.seata.core.rpc.netty;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.seata.common.exception.FrameworkException;
@@ -38,6 +32,12 @@ import io.seata.core.rpc.processor.client.ClientOnResponseProcessor;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static io.seata.core.constants.ConfigurationKeys.EXTRA_DATA_KV_CHAR;
 import static io.seata.core.constants.ConfigurationKeys.EXTRA_DATA_SPLIT_CHAR;
@@ -115,8 +115,7 @@ public final class TmNettyRemotingClient extends AbstractNettyRemotingClient {
                             nettyClientConfig.getClientWorkerThreads(), nettyClientConfig.getClientWorkerThreads(),
                             KEEP_ALIVE_TIME, TimeUnit.SECONDS,
                             new LinkedBlockingQueue<>(MAX_QUEUE_SIZE),
-                            new NamedThreadFactory(nettyClientConfig.getTmDispatchThreadPrefix(),
-                                    nettyClientConfig.getClientWorkerThreads()),
+                            new NamedThreadFactory(nettyClientConfig.getTmDispatchThreadPrefix(), nettyClientConfig.getClientWorkerThreads()),
                             RejectedPolicies.runsOldestTaskPolicy());
                     instance = new TmNettyRemotingClient(nettyClientConfig, null, messageExecutor);
                 }
@@ -171,7 +170,7 @@ public final class TmNettyRemotingClient extends AbstractNettyRemotingClient {
 
     @Override
     public void init() {
-        // registry processor
+        // 注册处理器
         registerProcessor();
         if (initialized.compareAndSet(false, true)) {
             super.init();
@@ -220,9 +219,8 @@ public final class TmNettyRemotingClient extends AbstractNettyRemotingClient {
     }
 
     private void registerProcessor() {
-        // 1.registry TC response processor
-        ClientOnResponseProcessor onResponseProcessor =
-                new ClientOnResponseProcessor(mergeMsgMap, super.getFutures(), getTransactionMessageHandler());
+        // 1.注册TC响应处理器
+        ClientOnResponseProcessor onResponseProcessor = new ClientOnResponseProcessor(mergeMsgMap, super.getFutures(), getTransactionMessageHandler());
         super.registerProcessor(MessageType.TYPE_SEATA_MERGE_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_GLOBAL_BEGIN_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_GLOBAL_COMMIT_RESULT, onResponseProcessor, null);
@@ -230,7 +228,7 @@ public final class TmNettyRemotingClient extends AbstractNettyRemotingClient {
         super.registerProcessor(MessageType.TYPE_GLOBAL_ROLLBACK_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_GLOBAL_STATUS_RESULT, onResponseProcessor, null);
         super.registerProcessor(MessageType.TYPE_REG_CLT_RESULT, onResponseProcessor, null);
-        // 2.registry heartbeat message processor
+        // 2.注册心跳消息处理器
         ClientHeartbeatProcessor clientHeartbeatProcessor = new ClientHeartbeatProcessor();
         super.registerProcessor(MessageType.TYPE_HEARTBEAT_MSG, clientHeartbeatProcessor, null);
     }

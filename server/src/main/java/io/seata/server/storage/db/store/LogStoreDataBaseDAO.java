@@ -15,15 +15,6 @@
  */
 package io.seata.server.storage.db.store;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.sql.DataSource;
-
 import io.seata.common.exception.DataAccessException;
 import io.seata.common.exception.StoreException;
 import io.seata.common.util.IOUtil;
@@ -38,6 +29,15 @@ import io.seata.core.store.LogStore;
 import io.seata.core.store.db.sql.log.LogStoreSqlsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.seata.common.DefaultValues.DEFAULT_STORE_DB_BRANCH_TABLE;
 import static io.seata.common.DefaultValues.DEFAULT_STORE_DB_GLOBAL_TABLE;
@@ -92,9 +92,9 @@ public class LogStoreDataBaseDAO implements LogStore {
     public LogStoreDataBaseDAO(DataSource logStoreDataSource) {
         this.logStoreDataSource = logStoreDataSource;
         globalTable = CONFIG.getConfig(ConfigurationKeys.STORE_DB_GLOBAL_TABLE,
-            DEFAULT_STORE_DB_GLOBAL_TABLE);
+                DEFAULT_STORE_DB_GLOBAL_TABLE);
         branchTable = CONFIG.getConfig(ConfigurationKeys.STORE_DB_BRANCH_TABLE,
-            DEFAULT_STORE_DB_BRANCH_TABLE);
+                DEFAULT_STORE_DB_BRANCH_TABLE);
         dbType = CONFIG.getConfig(ConfigurationKeys.STORE_DB_TYPE);
         if (StringUtils.isBlank(dbType)) {
             throw new StoreException("there must be db type.");
@@ -187,6 +187,11 @@ public class LogStoreDataBaseDAO implements LogStore {
 
     @Override
     public boolean insertGlobalTransactionDO(GlobalTransactionDO globalTransactionDO) {
+        /**
+         * insert into global_table (xid,transaction_id,status,application_id,transaction_service_group,
+         * transaction_name,timeout,begin_time,application_data,gmt_create,gmt_modified)
+         * values (?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
+         */
         String sql = LogStoreSqlsFactory.getLogStoreSqls(dbType).getInsertGlobalTransactionSQL(globalTable);
         Connection conn = null;
         PreparedStatement ps = null;
@@ -201,7 +206,7 @@ public class LogStoreDataBaseDAO implements LogStore {
             ps.setString(5, globalTransactionDO.getTransactionServiceGroup());
             String transactionName = globalTransactionDO.getTransactionName();
             transactionName = transactionName.length() > transactionNameColumnSize ? transactionName.substring(0,
-                transactionNameColumnSize) : transactionName;
+                    transactionNameColumnSize) : transactionName;
             ps.setString(6, transactionName);
             ps.setInt(7, globalTransactionDO.getTimeout());
             ps.setLong(8, globalTransactionDO.getBeginTime());
@@ -415,7 +420,7 @@ public class LogStoreDataBaseDAO implements LogStore {
         globalTransactionDO.setTransactionId(rs.getLong(ServerTableColumnsName.GLOBAL_TABLE_TRANSACTION_ID));
         globalTransactionDO.setTransactionName(rs.getString(ServerTableColumnsName.GLOBAL_TABLE_TRANSACTION_NAME));
         globalTransactionDO.setTransactionServiceGroup(
-            rs.getString(ServerTableColumnsName.GLOBAL_TABLE_TRANSACTION_SERVICE_GROUP));
+                rs.getString(ServerTableColumnsName.GLOBAL_TABLE_TRANSACTION_SERVICE_GROUP));
         globalTransactionDO.setApplicationData(rs.getString(ServerTableColumnsName.GLOBAL_TABLE_APPLICATION_DATA));
         globalTransactionDO.setGmtCreate(rs.getTimestamp(ServerTableColumnsName.GLOBAL_TABLE_GMT_CREATE));
         globalTransactionDO.setGmtModified(rs.getTimestamp(ServerTableColumnsName.GLOBAL_TABLE_GMT_MODIFIED));
