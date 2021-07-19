@@ -35,6 +35,7 @@ import java.util.List;
  * @author ggndnn
  */
 class DruidSQLRecognizerFactoryImpl implements SQLRecognizerFactory {
+
     @Override
     public List<SQLRecognizer> create(String sql, String dbType) {
         List<SQLStatement> asts = SQLUtils.parseStatements(sql, dbType);

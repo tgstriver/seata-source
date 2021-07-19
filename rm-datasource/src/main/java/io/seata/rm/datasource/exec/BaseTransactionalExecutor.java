@@ -214,6 +214,7 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         if (tableMeta != null) {
             return tableMeta;
         }
+
         ConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
         tableMeta = TableMetaCacheFactory.getTableMetaCache(connectionProxy.getDbType())
                 .getTableMeta(connectionProxy.getTargetConnection(), tableName, connectionProxy.getDataSourceProxy().getResourceId());
@@ -230,6 +231,7 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         if (columns == null || columns.isEmpty()) {
             return false;
         }
+
         List<String> newColumns = ColumnUtils.delEscape(columns, getDbType());
         return getTableMeta().containsPK(newColumns);
     }
@@ -282,7 +284,11 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
 
         ConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
         TableRecords lockKeyRecords = sqlRecognizer.getSQLType() == SQLType.DELETE ? beforeImage : afterImage;
+        // 根据镜像数据构造本地锁
+        // 1. 只有一个主键的情况，例如t_user:1,2,3
+        // 2. 有多个主键的情况，例如t_user:1_a,2_b
         String lockKeys = buildLockKey(lockKeyRecords);
+
         if (null != lockKeys) {
             connectionProxy.appendLockKey(lockKeys);
             SQLUndoLog sqlUndoLog = buildUndoItem(beforeImage, afterImage);
@@ -291,7 +297,9 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
     }
 
     /**
-     * build lockKey
+     * 根据镜像数据构造本地锁
+     * 1. 只有一个主键的情况，例如t_user:1,2,3
+     * 2. 有多个主键的情况，例如t_user:1_a,2_b
      *
      * @param rowsIncludingPK the records
      * @return the string as local key. the local key example(multi pk): "t_user:1_a,2_b"
@@ -304,17 +312,20 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         StringBuilder sb = new StringBuilder();
         sb.append(rowsIncludingPK.getTableMeta().getTableName());
         sb.append(":");
+
         int filedSequence = 0;
         List<Map<String, Field>> pksRows = rowsIncludingPK.pkRows();
-        for (Map<String, Field> rowMap : pksRows) {
+        for (Map<String, Field> rowMap : pksRows) { // map的key为主键字段的名称，value为Field对象
             int pkSplitIndex = 0;
             for (String pkName : getTableMeta().getPrimaryKeyOnlyName()) {
                 if (pkSplitIndex > 0) {
                     sb.append("_");
                 }
+
                 sb.append(rowMap.get(pkName).getValue());
                 pkSplitIndex++;
             }
+
             filedSequence++;
             if (filedSequence < pksRows.size()) {
                 sb.append(",");
@@ -388,16 +399,16 @@ public abstract class BaseTransactionalExecutor<T, S extends Statement> implemen
         int rowSize = pkValuesMap.get(firstKey).size();
         sql.append(SqlGenerateUtils.buildWhereConditionByPKs(pkColumnNameList, rowSize, getDbType()));
 
-        PreparedStatement ps = null;
+        PreparedStatement ps;
         ResultSet rs = null;
         try {
             ps = statementProxy.getConnection().prepareStatement(sql.toString());
 
             int paramIndex = 1;
             for (int r = 0; r < rowSize; r++) {
-                for (int c = 0; c < pkColumnNameList.size(); c++) {
-                    List<Object> pkColumnValueList = pkValuesMap.get(pkColumnNameList.get(c));
-                    int dataType = tableMeta.getColumnMeta(pkColumnNameList.get(c)).getDataType();
+                for (String s : pkColumnNameList) {
+                    List<Object> pkColumnValueList = pkValuesMap.get(s);
+                    int dataType = tableMeta.getColumnMeta(s).getDataType();
                     ps.setObject(paramIndex, pkColumnValueList.get(r), dataType);
                     paramIndex++;
                 }

@@ -50,7 +50,7 @@ public class TableRecords implements java.io.Serializable {
 
     private String tableName;
 
-    private List<Row> rows = new ArrayList<Row>();
+    private List<Row> rows = new ArrayList<>();
 
     /**
      * Gets table name.

@@ -15,14 +15,6 @@
  */
 package io.seata.rm.datasource.exec;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.seata.common.util.StringUtils;
 import io.seata.core.context.RootContext;
 import io.seata.rm.datasource.StatementProxy;
@@ -32,6 +24,14 @@ import io.seata.sqlparser.SQLSelectRecognizer;
 import io.seata.sqlparser.util.JdbcConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The type Select for update executor.
@@ -133,7 +133,7 @@ public class SelectForUpdateExecutor<T, S extends Statement> extends BaseTransac
     }
 
     private String buildSelectSQL(ArrayList<List<Object>> paramAppenderList) {
-        SQLSelectRecognizer recognizer = (SQLSelectRecognizer)sqlRecognizer;
+        SQLSelectRecognizer recognizer = (SQLSelectRecognizer) sqlRecognizer;
         StringBuilder selectSQLAppender = new StringBuilder("SELECT ");
         selectSQLAppender.append(getColumnNamesInSQL(getTableMeta().getEscapePkNameList(getDbType())));
         selectSQLAppender.append(" FROM ").append(getFromTableInSQL());

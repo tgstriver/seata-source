@@ -313,10 +313,7 @@ public class LockStoreDataBaseDAO implements LockStore {
         try {
             conn = lockStoreDataSource.getConnection();
             conn.setAutoCommit(true);
-            if (!checkLockable(conn, lockDOs)) {
-                return false;
-            }
-            return true;
+            return checkLockable(conn, lockDOs);
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } finally {
@@ -401,12 +398,14 @@ public class LockStoreDataBaseDAO implements LockStore {
                 sj.add("?");
             }
 
-            //query
+            // select xid, transaction_id, branch_id, resource_id, table_name, pk, row_key, gmt_create, gmt_modified
+            // from lock_table where row_key in (?,?,?)
             String checkLockSQL = LockStoreSqlFactory.getLogStoreSql(dbType).getCheckLockableSql(lockTable, sj.toString());
             ps = conn.prepareStatement(checkLockSQL);
             for (int i = 0; i < lockDOs.size(); i++) {
                 ps.setString(i + 1, lockDOs.get(i).getRowKey());
             }
+
             rs = ps.executeQuery();
             while (rs.next()) {
                 String xid = rs.getString("xid");

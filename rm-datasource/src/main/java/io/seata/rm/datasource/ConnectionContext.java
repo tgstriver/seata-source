@@ -117,7 +117,6 @@ public class ConnectionContext {
             sqlUndoItemsBuffer.clear();
             lockKeysBuffer.clear();
         } else {
-
             for (Savepoint sp : afterSavepoints) {
                 sqlUndoItemsBuffer.remove(sp);
                 lockKeysBuffer.remove(sp);
@@ -326,7 +325,7 @@ public class ConnectionContext {
 
 
     /**
-     * Get the savepoints after target savepoint(include the param savepoint)
+     * 获取目标保存点后的保存点（包括参数保存点）
      *
      * @param savepoint the target savepoint
      * @return after savepoints

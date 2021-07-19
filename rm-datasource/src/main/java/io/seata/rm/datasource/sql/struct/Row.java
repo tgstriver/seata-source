@@ -28,7 +28,7 @@ public class Row implements java.io.Serializable {
 
     private static final long serialVersionUID = 6532477221179419451L;
 
-    private List<Field> fields = new ArrayList<Field>();
+    private List<Field> fields = new ArrayList<>();
 
     /**
      * Instantiates a new Row.

@@ -84,6 +84,7 @@ public abstract class AbstractLockManager implements LockManager {
             // no lock
             return true;
         }
+
         List<RowLock> locks = collectRowLocks(lockKey, resourceId, xid);
         try {
             return getLocker().isLockable(locks);

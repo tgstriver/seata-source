@@ -77,7 +77,7 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
 
     @Override
     public T doExecute(Object... args) throws Throwable {
-        //获取数据库连接代理对象(包装了我们原生的连接)
+        //获取数据库连接代理对象(包装了原生的连接)
         AbstractConnectionProxy connectionProxy = statementProxy.getConnectionProxy();
         //根据原生的数据库连接的自动提交模式来执行，我们原生的提交模式是没有关闭自动提交的，所以会执行我们的executeAutoCommitTrue
         if (connectionProxy.getAutoCommit()) {
@@ -199,7 +199,6 @@ public abstract class AbstractDMLBaseExecutor<T, S extends Statement> extends Ba
         @Override
         protected void onException(Exception e) throws Exception {
             ConnectionContext context = connection.getContext();
-            //UndoItems can't use the Set collection class to prevent ABA
             context.removeSavepoint(null);
             connection.getTargetConnection().rollback();
         }

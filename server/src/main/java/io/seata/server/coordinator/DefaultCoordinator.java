@@ -263,11 +263,9 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
     }
 
     @Override
-    protected void doLockCheck(GlobalLockQueryRequest request, GlobalLockQueryResponse response, RpcContext rpcContext)
-            throws TransactionException {
+    protected void doLockCheck(GlobalLockQueryRequest request, GlobalLockQueryResponse response, RpcContext rpcContext) throws TransactionException {
         MDC.put(RootContext.MDC_KEY_XID, request.getXid());
-        response.setLockable(
-                core.lockQuery(request.getBranchType(), request.getResourceId(), request.getXid(), request.getLockKey()));
+        response.setLockable(core.lockQuery(request.getBranchType(), request.getResourceId(), request.getXid(), request.getLockKey()));
     }
 
     /**

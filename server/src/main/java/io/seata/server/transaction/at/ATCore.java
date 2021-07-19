@@ -63,8 +63,7 @@ public class ATCore extends AbstractCore {
     }
 
     @Override
-    public boolean lockQuery(BranchType branchType, String resourceId, String xid, String lockKeys)
-            throws TransactionException {
+    public boolean lockQuery(BranchType branchType, String resourceId, String xid, String lockKeys) throws TransactionException {
         return lockManager.isLockable(xid, resourceId, lockKeys);
     }
 }

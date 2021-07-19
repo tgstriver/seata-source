@@ -107,8 +107,7 @@ public class DefaultCore implements Core {
     }
 
     @Override
-    public boolean lockQuery(BranchType branchType, String resourceId, String xid, String lockKeys)
-            throws TransactionException {
+    public boolean lockQuery(BranchType branchType, String resourceId, String xid, String lockKeys) throws TransactionException {
         return getCore(branchType).lockQuery(branchType, resourceId, xid, lockKeys);
     }
 

@@ -15,12 +15,6 @@
  */
 package io.seata.rm.datasource.sql.struct.cache;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.seata.common.exception.ShouldNeverHappenException;
@@ -30,6 +24,12 @@ import io.seata.rm.datasource.sql.struct.TableMeta;
 import io.seata.rm.datasource.sql.struct.TableMetaCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Table meta cache.
@@ -67,7 +67,7 @@ public abstract class AbstractTableMetaCache implements TableMetaCache {
 
         if (tmeta == null) {
             throw new ShouldNeverHappenException(String.format("[xid:%s]get table meta failed," +
-                " please check whether the table `%s` exists.", RootContext.getXID(), tableName));
+                    " please check whether the table `%s` exists.", RootContext.getXID(), tableName));
         }
         return tmeta;
     }

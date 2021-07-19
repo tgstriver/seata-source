@@ -80,6 +80,7 @@ public class RootContext {
             throw new IllegalArgumentException("The default branch type must be " + AT + " or " + XA + "." +
                     " the value of the argument is: " + defaultBranchType);
         }
+
         if (DEFAULT_BRANCH_TYPE != null && DEFAULT_BRANCH_TYPE != defaultBranchType && LOGGER.isWarnEnabled()) {
             LOGGER.warn("The `{}.DEFAULT_BRANCH_TYPE` has been set repeatedly. The value changes from {} to {}",
                     RootContext.class.getSimpleName(), DEFAULT_BRANCH_TYPE, defaultBranchType);

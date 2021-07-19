@@ -48,6 +48,4 @@ public class SQLVisitorFactory {
     public static List<SQLRecognizer> get(String sql, String dbType) {
         return SQL_RECOGNIZER_FACTORY.create(sql, dbType);
     }
-
-
 }

@@ -56,6 +56,7 @@ public abstract class AbstractLocker implements Locker {
             LockDO lockDO = new LockDO();
             lockDO.setBranchId(rowLock.getBranchId());
             lockDO.setPk(rowLock.getPk());
+            // jdbc:mysql://47.108.128.50:31822/yyx-saas
             lockDO.setResourceId(rowLock.getResourceId());
             // 封装行锁，jdbc:mysql://47.108.128.50:31822/yyx-saas^^^product_info^^^id
             lockDO.setRowKey(getRowKey(rowLock.getResourceId(), rowLock.getTableName(), rowLock.getPk()));

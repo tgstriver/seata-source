@@ -78,12 +78,21 @@ public class MySQLInsertExecutor extends BaseInsertExecutor implements Defaultab
         super(statementProxy, statementCallback, sqlRecognizer);
     }
 
+    /**
+     * 获取所有的主键值
+     *
+     * @return
+     * @throws SQLException
+     */
     @Override
     public Map<String, List<Object>> getPkValues() throws SQLException {
-        Map<String, List<Object>> pkValuesMap = null;
+        Map<String, List<Object>> pkValuesMap;
+        // 返回所有的主键字段的名称
         List<String> pkColumnNameList = getTableMeta().getPrimaryKeyOnlyName();
+        // 返回插入的字段中是否包含主键
         Boolean isContainsPk = containsPK();
-        //when there is only one pk in the table
+
+        // 当表中只有一个pk时
         if (getTableMeta().getPrimaryKeyOnlyName().size() == 1) {
             if (isContainsPk) {
                 pkValuesMap = getPkValuesByColumn();

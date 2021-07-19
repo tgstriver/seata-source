@@ -85,7 +85,7 @@ public class ExecuteTemplate {
         } else {
             if (sqlRecognizers.size() == 1) {
                 SQLRecognizer sqlRecognizer = sqlRecognizers.get(0);
-                //根据我们原始sql执行的脚本类生成不同sql的执行器
+                // 根据sql类型生成不同sql的执行器
                 switch (sqlRecognizer.getSQLType()) {
                     case INSERT:
                         executor = EnhancedServiceLoader.load(InsertExecutor.class, dbType,
@@ -109,6 +109,7 @@ public class ExecuteTemplate {
                 executor = new MultiExecutor<>(statementProxy, statementCallback, sqlRecognizers);
             }
         }
+
         T rs;
         try {
             //根据具体的执行器执行我们的sql语句

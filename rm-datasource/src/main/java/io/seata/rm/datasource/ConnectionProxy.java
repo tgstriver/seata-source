@@ -116,8 +116,7 @@ public class ConnectionProxy extends AbstractConnectionProxy {
         }
 
         try {
-            boolean lockable = DefaultResourceManager.get().lockQuery(BranchType.AT,
-                getDataSourceProxy().getResourceId(), context.getXid(), lockKeys);
+            boolean lockable = DefaultResourceManager.get().lockQuery(BranchType.AT, getDataSourceProxy().getResourceId(), context.getXid(), lockKeys);
             if (!lockable) { // 获取全局锁失败
                 throw new LockConflictException();
             }
@@ -247,7 +246,7 @@ public class ConnectionProxy extends AbstractConnectionProxy {
 
     private void processGlobalTransactionCommit() throws SQLException {
         try {
-            // 调用seata‐server的分支注册接口，注意：在这里注册分支事务时会带入全局锁(表名:修改的字段值)
+            // 调用seata‐server的分支事务注册接口，注意：在注册分支事务时会带入全局锁(表名:修改的字段值)
             register();
         } catch (TransactionException e) {
             // 若全局锁在服务端有冲突，这里会抛出LockConflictException异常
@@ -255,7 +254,7 @@ public class ConnectionProxy extends AbstractConnectionProxy {
         }
 
         try {
-            //保存我们的前置和后置镜像数据到业务数据库中的undo_log表
+            //保存前置和后置镜像数据到业务数据库中的undo_log表
             UndoLogManagerFactory.getUndoLogManager(this.getDbType()).flushUndoLogs(this);
             //提交本地事务
             targetConnection.commit();
@@ -266,7 +265,8 @@ public class ConnectionProxy extends AbstractConnectionProxy {
             throw new SQLException(ex);
         }
 
-        if (IS_REPORT_SUCCESS_ENABLE) { // 如果启用了client.rm.reportSuccessEnable，那么分支事务在一阶段提交成功的时候会向seata-server进行报告
+        // 如果启用了client.rm.reportSuccessEnable，那么分支事务在一阶段提交成功的时候会向seata-server进行报告。默认是禁用的，可以提高seata-server的性能
+        if (IS_REPORT_SUCCESS_ENABLE) {
             report(true);
         }
         context.reset();

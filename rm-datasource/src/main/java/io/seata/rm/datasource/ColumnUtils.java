@@ -199,6 +199,7 @@ public final class ColumnUtils {
         if (colName == null || colName.isEmpty()) {
             return colName;
         }
+
         if (colName.charAt(0) == escape.value && colName.charAt(colName.length() - 1) == escape.value) {
             return colName;
         }

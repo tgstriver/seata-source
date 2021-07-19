@@ -15,13 +15,6 @@
  */
 package io.seata.rm.datasource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import javax.sql.DataSource;
-
 import io.seata.common.thread.NamedThreadFactory;
 import io.seata.config.ConfigurationFactory;
 import io.seata.core.constants.ConfigurationKeys;
@@ -34,6 +27,13 @@ import io.seata.rm.datasource.util.JdbcUtils;
 import io.seata.sqlparser.util.JdbcConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_TABLE_META_CHECK_ENABLE;
 import static io.seata.common.DefaultValues.DEFAULT_TABLE_META_CHECKER_INTERVAL;
@@ -61,7 +61,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
      * Enable the table meta checker
      */
     private static boolean ENABLE_TABLE_META_CHECKER_ENABLE = ConfigurationFactory.getInstance().getBoolean(
-        ConfigurationKeys.CLIENT_TABLE_META_CHECK_ENABLE, DEFAULT_CLIENT_TABLE_META_CHECK_ENABLE);
+            ConfigurationKeys.CLIENT_TABLE_META_CHECK_ENABLE, DEFAULT_CLIENT_TABLE_META_CHECK_ENABLE);
 
     /**
      * Table meta checker interval
@@ -70,7 +70,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
             ConfigurationKeys.CLIENT_TABLE_META_CHECKER_INTERVAL, DEFAULT_TABLE_META_CHECKER_INTERVAL);
 
     private final ScheduledExecutorService tableMetaExcutor = new ScheduledThreadPoolExecutor(1,
-        new NamedThreadFactory("tableMetaChecker", 1, true));
+            new NamedThreadFactory("tableMetaChecker", 1, true));
 
     /**
      * Instantiates a new Data source proxy.
@@ -112,7 +112,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
             tableMetaExcutor.scheduleAtFixedRate(() -> {
                 try (Connection connection = dataSource.getConnection()) {
                     TableMetaCacheFactory.getTableMetaCache(DataSourceProxy.this.getDbType())
-                        .refresh(connection, DataSourceProxy.this.getResourceId());
+                            .refresh(connection, DataSourceProxy.this.getResourceId());
                 } catch (Exception ignore) {
                 }
             }, 0, TABLE_META_CHECKER_INTERVAL, TimeUnit.MILLISECONDS);
@@ -171,6 +171,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
 
     /**
      * get the default resource id
+     *
      * @return resource id
      */
     private String getDefaultResourceId() {
@@ -189,6 +190,7 @@ public class DataSourceProxy extends AbstractDataSourceProxy implements Resource
      * it will cause the problem like
      * 1.get file lock fail
      * 2.error table meta cache
+     *
      * @return resourceId
      */
     private String getPGResourceId() {

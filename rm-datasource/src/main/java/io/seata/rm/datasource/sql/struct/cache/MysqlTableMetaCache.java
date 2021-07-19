@@ -15,13 +15,6 @@
  */
 package io.seata.rm.datasource.sql.struct.cache;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.loader.LoadLevel;
 import io.seata.rm.datasource.ColumnUtils;
@@ -33,6 +26,13 @@ import io.seata.sqlparser.util.JdbcConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * The type Table meta cache.
  *
@@ -43,15 +43,23 @@ public class MysqlTableMetaCache extends AbstractTableMetaCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MysqlTableMetaCache.class);
 
+    /**
+     * 获取缓存的key
+     *
+     * @param connection the connection
+     * @param tableName  表名，如：yyx-saas.product
+     * @param resourceId 资源id，如：jdbc:mysql://47.108.128.50:31822/yyx-saas
+     * @return jdbc:mysql://47.108.128.50:31822/yyx-saas.product
+     */
     @Override
     protected String getCacheKey(Connection connection, String tableName, String resourceId) {
         StringBuilder cacheKey = new StringBuilder(resourceId);
         cacheKey.append(".");
-        //remove single quote and separate it to catalogName and tableName
+        //删除单引号并将其分隔为 catalogName 和 tableName
         String[] tableNameWithCatalog = tableName.replace("`", "").split("\\.");
         String defaultTableName = tableNameWithCatalog.length > 1 ? tableNameWithCatalog[1] : tableNameWithCatalog[0];
 
-        DatabaseMetaData databaseMetaData = null;
+        DatabaseMetaData databaseMetaData;
         try {
             databaseMetaData = connection.getMetaData();
         } catch (SQLException e) {
@@ -78,7 +86,7 @@ public class MysqlTableMetaCache extends AbstractTableMetaCache {
     protected TableMeta fetchSchema(Connection connection, String tableName) throws SQLException {
         String sql = "SELECT * FROM " + ColumnUtils.addEscape(tableName, JdbcConstants.MYSQL) + " LIMIT 1";
         try (Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
             return resultSetMetaToSchema(rs.getMetaData(), connection.getMetaData());
         } catch (SQLException sqlEx) {
             throw sqlEx;
@@ -87,8 +95,7 @@ public class MysqlTableMetaCache extends AbstractTableMetaCache {
         }
     }
 
-    private TableMeta resultSetMetaToSchema(ResultSetMetaData rsmd, DatabaseMetaData dbmd)
-        throws SQLException {
+    private TableMeta resultSetMetaToSchema(ResultSetMetaData rsmd, DatabaseMetaData dbmd) throws SQLException {
         //always "" for mysql
         String schemaName = rsmd.getSchemaName(1);
         String catalogName = rsmd.getCatalogName(1);
@@ -158,6 +165,7 @@ public class MysqlTableMetaCache extends AbstractTableMetaCache {
                     index.setAscOrDesc(rsIndex.getString("ASC_OR_DESC"));
                     index.setCardinality(rsIndex.getInt("CARDINALITY"));
                     index.getValues().add(col);
+
                     if ("PRIMARY".equalsIgnoreCase(indexName)) {
                         index.setIndextype(IndexType.PRIMARY);
                     } else if (!index.isNonUnique()) {
@@ -169,6 +177,7 @@ public class MysqlTableMetaCache extends AbstractTableMetaCache {
 
                 }
             }
+
             if (tm.getAllIndexes().isEmpty()) {
                 throw new ShouldNeverHappenException("Could not found any index in the table: " + tableName);
             }

@@ -208,8 +208,7 @@ public class CollectionUtils {
 
     /**
      * Compute if absent.
-     * Use this method if you are frequently using the same key,
-     * because the get method has no lock.
+     * 如果经常使用相同的key，请使用此方法，因为get方法没有加锁
      *
      * @param map             the map
      * @param key             the key
