@@ -35,6 +35,7 @@ import static io.seata.spring.boot.autoconfigure.StarterConstants.CLIENT_RM_PREF
 @Component
 @ConfigurationProperties(prefix = CLIENT_RM_PREFIX)
 public class RmProperties {
+
     private int asyncCommitBufferLimit = DEFAULT_CLIENT_ASYNC_COMMIT_BUFFER_LIMIT;
     private int reportRetryCount = DEFAULT_CLIENT_REPORT_RETRY_COUNT;
     private boolean tableMetaCheckEnable = DEFAULT_CLIENT_TABLE_META_CHECK_ENABLE;

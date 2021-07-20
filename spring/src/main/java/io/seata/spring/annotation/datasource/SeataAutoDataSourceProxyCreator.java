@@ -15,10 +15,6 @@
  */
 package io.seata.spring.annotation.datasource;
 
-import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.Advisor;
@@ -26,6 +22,10 @@ import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.aop.support.DefaultIntroductionAdvisor;
 import org.springframework.beans.BeansException;
+
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author xingfudeshi@gmail.com
@@ -52,7 +52,7 @@ public class SeataAutoDataSourceProxyCreator extends AbstractAutoProxyCreator {
     @Override
     protected boolean shouldSkip(Class<?> beanClass, String beanName) {
         return !DataSource.class.isAssignableFrom(beanClass) ||
-            SeataProxy.class.isAssignableFrom(beanClass) ||
-            excludes.contains(beanClass.getName());
+                SeataProxy.class.isAssignableFrom(beanClass) ||
+                excludes.contains(beanClass.getName());
     }
 }

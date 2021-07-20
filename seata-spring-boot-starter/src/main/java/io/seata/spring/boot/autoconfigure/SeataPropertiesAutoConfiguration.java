@@ -92,8 +92,8 @@ import static io.seata.spring.boot.autoconfigure.StarterConstants.LOAD_BALANCE_P
 @ComponentScan(basePackages = "io.seata.spring.boot.autoconfigure.properties")
 @AutoConfigureBefore({SeataAutoConfiguration.class, SeataDataSourceAutoConfiguration.class})
 public class SeataPropertiesAutoConfiguration {
-    static {
 
+    static {
         PROPERTY_BEAN_MAP.put(SEATA_PREFIX, SeataProperties.class);
 
         PROPERTY_BEAN_MAP.put(CLIENT_RM_PREFIX, RmProperties.class);

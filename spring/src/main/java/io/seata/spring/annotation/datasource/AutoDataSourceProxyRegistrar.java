@@ -15,13 +15,13 @@
  */
 package io.seata.spring.annotation.datasource;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
+
+import java.util.Map;
 
 /**
  * @author xingfudeshi@gmail.com
@@ -46,21 +46,21 @@ public class AutoDataSourceProxyRegistrar implements ImportBeanDefinitionRegistr
         //register seataDataSourceBeanPostProcessor bean def
         if (!registry.containsBeanDefinition(BEAN_NAME_SEATA_DATA_SOURCE_BEAN_POST_PROCESSOR)) {
             AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
-                .genericBeanDefinition(SeataDataSourceBeanPostProcessor.class)
-                .addConstructorArgValue(excludes)
-                .addConstructorArgValue(dataSourceProxyMode)
-                .getBeanDefinition();
+                    .genericBeanDefinition(SeataDataSourceBeanPostProcessor.class)
+                    .addConstructorArgValue(excludes)
+                    .addConstructorArgValue(dataSourceProxyMode)
+                    .getBeanDefinition();
             registry.registerBeanDefinition(BEAN_NAME_SEATA_DATA_SOURCE_BEAN_POST_PROCESSOR, beanDefinition);
         }
 
         //register seataAutoDataSourceProxyCreator bean def
         if (!registry.containsBeanDefinition(BEAN_NAME_SEATA_AUTO_DATA_SOURCE_PROXY_CREATOR)) {
             AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
-                .genericBeanDefinition(SeataAutoDataSourceProxyCreator.class)
-                .addConstructorArgValue(useJdkProxy)
-                .addConstructorArgValue(excludes)
-                .addConstructorArgValue(dataSourceProxyMode)
-                .getBeanDefinition();
+                    .genericBeanDefinition(SeataAutoDataSourceProxyCreator.class)
+                    .addConstructorArgValue(useJdkProxy)
+                    .addConstructorArgValue(excludes)
+                    .addConstructorArgValue(dataSourceProxyMode)
+                    .getBeanDefinition();
             registry.registerBeanDefinition(BEAN_NAME_SEATA_AUTO_DATA_SOURCE_PROXY_CREATOR, beanDefinition);
         }
     }

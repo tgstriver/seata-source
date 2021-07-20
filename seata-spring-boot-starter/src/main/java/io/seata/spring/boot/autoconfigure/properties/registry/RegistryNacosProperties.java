@@ -68,6 +68,7 @@ public class RegistryNacosProperties {
         this.cluster = cluster;
         return this;
     }
+
     public String getUsername() {
         return username;
     }
