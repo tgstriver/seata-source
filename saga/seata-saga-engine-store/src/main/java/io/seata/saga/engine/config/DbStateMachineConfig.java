@@ -15,11 +15,6 @@
  */
 package io.seata.saga.engine.config;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-
 import io.seata.config.Configuration;
 import io.seata.config.ConfigurationFactory;
 import io.seata.core.constants.ConfigurationKeys;
@@ -33,6 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_REPORT_SUCCESS_ENABLE;
 import static io.seata.common.DefaultValues.DEFAULT_CLIENT_SAGA_BRANCH_REGISTER_ENABLE;
@@ -69,9 +69,9 @@ public class DbStateMachineConfig extends DefaultStateMachineConfig implements D
                 this.applicationId = configuration.getConfig(ConfigurationKeys.APPLICATION_ID);
                 this.txServiceGroup = configuration.getConfig(ConfigurationKeys.TX_SERVICE_GROUP);
                 setSagaRetryPersistModeUpdate(configuration.getBoolean(ConfigurationKeys.CLIENT_SAGA_RETRY_PERSIST_MODE_UPDATE,
-                    DEFAULT_CLIENT_SAGA_RETRY_PERSIST_MODE_UPDATE));
+                        DEFAULT_CLIENT_SAGA_RETRY_PERSIST_MODE_UPDATE));
                 setSagaCompensatePersistModeUpdate(configuration.getBoolean(ConfigurationKeys.CLIENT_SAGA_COMPENSATE_PERSIST_MODE_UPDATE,
-                    DEFAULT_CLIENT_SAGA_COMPENSATE_PERSIST_MODE_UPDATE));
+                        DEFAULT_CLIENT_SAGA_COMPENSATE_PERSIST_MODE_UPDATE));
             }
         } catch (Exception e) {
             LOGGER.warn("Load SEATA configuration failed, use default configuration instead.", e);
@@ -106,7 +106,7 @@ public class DbStateMachineConfig extends DefaultStateMachineConfig implements D
 
             if (sagaTransactionalTemplate == null) {
                 DefaultSagaTransactionalTemplate defaultSagaTransactionalTemplate
-                    = new DefaultSagaTransactionalTemplate();
+                        = new DefaultSagaTransactionalTemplate();
                 defaultSagaTransactionalTemplate.setApplicationContext(getApplicationContext());
                 defaultSagaTransactionalTemplate.setApplicationId(applicationId);
                 defaultSagaTransactionalTemplate.setTxServiceGroup(txServiceGroup);

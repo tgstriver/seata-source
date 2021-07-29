@@ -45,7 +45,7 @@ public interface ConfigurationKeys {
     /**
      * The constant STORE_PUBLIC_KEY.
      */
-    public static final String STORE_PUBLIC_KEY = STORE_PREFIX + "publicKey";
+    String STORE_PUBLIC_KEY = STORE_PREFIX + "publicKey";
 
     /**
      * The constant STORE_FILE_PREFIX
